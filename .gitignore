@@ -32,5 +32,8 @@
 *.out
 
 ## Mac OS
-
 .DS_Store
+
+*.swp
+
+2d-cdt

@@ -1,0 +1,5 @@
+# Main todos
+Merge working code with improved pool structure
+
+## Secondary todo (after main merge)
+Remove continuous updating of vertex neighbours - only necessary "on the fly". See Ben Ruijl's code.
