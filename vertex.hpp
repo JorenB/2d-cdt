@@ -8,13 +8,14 @@ class Vertex : public Simplex {
     public:
         int time;
 
-        Triangle *tl, *tr;
-
-        Triangle& leftmost() { return *tl; }
-        Triangle& rightmost() { return *tr; }
+        Triangle& getTriangleLeft() { return *tl; }
+        Triangle& getTriangleRight() { return *tr; }
         
-        void leftmost(Triangle &t)  { tl = &t; }
-        void rightmost(Triangle &t) { tr = &t; }
+        void setTriangleLeft(Triangle &t)  { tl = &t; }
+        void setTriangleRight(Triangle &t) { tr = &t; }
+
+    private:
+        Triangle *tl, *tr;
 
         /*int nu, nd;													//
         void coord(int xu, int xd) {								// Change coord
