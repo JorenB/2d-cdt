@@ -25,5 +25,7 @@ class Universe {
 
         void initialize();
 
+        //  moves
+        void moveAdd(Triangle& t);
 }; 
 #endif

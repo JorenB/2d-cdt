@@ -48,14 +48,16 @@ class Triangle : public Simplex {
         void setVertexLeft(Vertex& v) { 
             vl = &v;
             time = vl->time;
-            //  fix: only if upwards
-            v.setTriangleRight(*this);
+            if (type == UP) {
+                v.setTriangleRight(*this);
+            }
         }
 
         void setVertexRight(Vertex& v) { 
             vr = &v;
-            //  fix: only if upwards
-            v.setTriangleLeft(*this);
+            if (type == UP) {
+                v.setTriangleLeft(*this);
+            }
         }
 
         void setVertexCenter(Vertex& v) { vc = &v; }

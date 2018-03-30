@@ -58,23 +58,50 @@ void Universe::initialize() {
         }
     }
 
-    /*for (int i = 0; i < initialTriangles.size(); i += 7) {
-        Triangle *tr = initialTriangles[i];
-        printf("tr: %d; time: %d, tl: %d, tr: %d, tc: %d, vl: %d, vr: %d, vc: %d\n", tr->getKey(),
-                tr->time, 
-                tr->getTriangleLeft().getKey(),
-                tr->getTriangleRight().getKey(),
-                tr->getTriangleCenter().getKey(),
-                tr->getVertexLeft().getKey(), 
-                tr->getVertexRight().getKey(), 
-                tr->getVertexCenter().getKey());
+    Triangle *tri = initialTriangles[3];
+    moveAdd(*tri);
+
+    for (int i = 1; i < triangles.size()+1; i++) {
+        Triangle tr = triangles[i];
+        printf("tri: %d; time: %d, type: %s, tl: %d, tr: %d, tc: %d, vl: %d, vr: %d, vc: %d\n", tr.getKey(),
+                tr.time, 
+                tr.type == Triangle::Type::UP ? "up" : "down",
+                tr.getTriangleLeft().getKey(),
+                tr.getTriangleRight().getKey(),
+                tr.getTriangleCenter().getKey(),
+                tr.getVertexLeft().getKey(), 
+                tr.getVertexRight().getKey(), 
+                tr.getVertexCenter().getKey());
     }
 
-    for (int i = 0; i < initialVertices.size(); i += 7) {
-        Vertex *v = initialVertices[i];
-        printf("v: %d; tl: %d, tr: %d\n", v->getKey(), v->getTriangleLeft().getKey(), v->getTriangleRight().getKey());
-    }*/
 
+    for (int i = 1; i < vertices.size()+1; i++) {
+        Vertex v = vertices[i];
+        printf("v: %d; tl: %d, tr: %d\n", v.getKey(), v.getTriangleLeft().getKey(), v.getTriangleRight().getKey());
+    }
+    
+}
 
+void Universe::moveAdd(Triangle& t) {
+    Triangle& tc = t.getTriangleCenter();
 
+    Vertex& vr = t.getVertexRight();
+
+    int time = t.time;
+
+    Vertex& v = vertices.create();
+    v.time = time;
+    sliceSizes[time] += 1;
+
+    t.setVertexRight(v);
+    tc.setVertexRight(v);
+
+    Triangle& t1 = triangles.create(); //  right neighbour of t
+    Triangle& t2 = triangles.create(); //  right neighbour of tc
+
+    t1.setVertices(v, vr, t.getVertexCenter());
+    t2.setVertices(v, vr, tc.getVertexCenter());
+
+    t1.setTriangles(t, t.getTriangleRight(), t2);
+    t2.setTriangles(tc, tc.getTriangleRight(), t1);
 }
