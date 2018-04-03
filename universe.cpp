@@ -12,8 +12,10 @@ void Universe::initialize() {
     std::vector<Vertex*> initialVertices(w*t);
 
     for (int i = 0; i < w*t; i++) {
-        initialVertices[i] = &vertices.create();
-        initialVertices[i]->time = i/w;
+        Vertex *v = &vertices.create();
+        v->time = i/w;
+        v->setNeighbourNumber(2, 2);
+        initialVertices[i] = v;
     }
 
     for (int i = 0; i < t; i++) {
@@ -62,12 +64,16 @@ void Universe::initialize() {
         }
     }
 
-    Triangle *tri = initialTriangles[3];
-    moveAdd(*tri);
+    Triangle *tri1 = initialTriangles[3];
+    moveAdd(*tri1);
+    Triangle *tri2 = initialTriangles[20];
+    moveAdd(*tri2);
+    Triangle *tri3 = initialTriangles[38];
+    moveAdd(*tri3);
 
     for (int i = 1; i < triangles.size()+1; i++) {
         Triangle tr = triangles[i];
-        printf("tri: %d; time: %d, type: %s, tl: %d, tr: %d, tc: %d, vl: %d, vr: %d, vc: %d\n", tr.getKey(),
+        /*printf("tri: %d; time: %d, type: %s, tl: %d, tr: %d, tc: %d, vl: %d, vr: %d, vc: %d\n", tr.getKey(),
                 tr.time, 
                 tr.type == Triangle::Type::UP ? "up" : "down",
                 tr.getTriangleLeft().getKey(),
@@ -75,14 +81,16 @@ void Universe::initialize() {
                 tr.getTriangleCenter().getKey(),
                 tr.getVertexLeft().getKey(), 
                 tr.getVertexRight().getKey(), 
-                tr.getVertexCenter().getKey());
+                tr.getVertexCenter().getKey());*/
     }
 
 
     for (int i = 1; i < vertices.size()+1; i++) {
         Vertex v = vertices[i];
-        printf("v: %d; tl: %d, tr: %d\n", v.getKey(), v.getTriangleLeft().getKey(), v.getTriangleRight().getKey());
+        //printf("v: %d; tl: %d, tr: %d, nu: %d, nd: %d\n", v.getKey(), v.getTriangleLeft().getKey(), v.getTriangleRight().getKey(), v.neighboursUp, v.neighboursDown);
     }
+
+    //verticesDel.log();
     
 }
 
@@ -95,6 +103,8 @@ void Universe::moveAdd(Triangle& t) {
 
     Vertex& v = vertices.create();
     v.time = time;
+    v.setNeighbourNumber(1, 1);
+    verticesDel.add(v);
     sliceSizes[time] += 1;
 
     t.setVertexRight(v);
@@ -108,4 +118,12 @@ void Universe::moveAdd(Triangle& t) {
 
     t1.setTriangles(t, t.getTriangleRight(), t2);
     t2.setTriangles(tc, tc.getTriangleRight(), t1);
+
+    if (t.isUpwards()) {
+        t.getVertexCenter().changeNeighbourNumber(0, 1);
+        tc.getVertexCenter().changeNeighbourNumber(1, 0);
+    } else if (t.isDownwards()) {
+        t.getVertexCenter().changeNeighbourNumber(1, 0);
+        tc.getVertexCenter().changeNeighbourNumber(0, 1);
+    }
 }

@@ -8,6 +8,18 @@ class Vertex : public Simplex {
     public:
         int time;
 
+        int neighboursUp, neighboursDown;
+
+        void changeNeighbourNumber(int up, int down) {
+            neighboursUp += up;
+            neighboursDown += down;
+        }
+
+        void setNeighbourNumber(int up, int down) {
+            neighboursUp = up;
+            neighboursDown = down;
+        }
+
         Triangle& getTriangleLeft() { return *tl; }
         Triangle& getTriangleRight() { return *tr; }
         

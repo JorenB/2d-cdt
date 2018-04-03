@@ -75,7 +75,14 @@ class Triangle : public Simplex {
                 vr_.setTriangleLeft(*this);
             }
         }
-        // type up/down ...
+
+        bool isUpwards() {
+            return type == UP;
+        }
+
+        bool isDownwards() {
+            return type == DOWN;
+        }
 
     private:
         Triangle	*tl, *tr, *tc;

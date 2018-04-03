@@ -7,15 +7,15 @@
 #include "pool.hpp"
 #include "bag.hpp"
 
-#define N_TRIANGLES 2050000
-#define N_VERTICES 1050000
+#define N_TRIANGLES 300 
+#define N_VERTICES 150
 
 class Universe {
     public:
         Pool<Triangle, N_TRIANGLES> triangles;
         Pool<Vertex, N_VERTICES> vertices;
 
-        //Bag<Vertex, N_VERTICES> verticesDel;  //  vertices with coordination number 4. These are candidates for the delete move
+        Bag<Vertex, N_VERTICES> verticesDel;  //  vertices with coordination number 4. These are candidates for the delete move
         //Bag<Vertex, N_VERTICES> verticesFlip;   //  vertices with more than two upwards pointing links. These can be used in a flip move
 
         std::vector<int> sliceSizes;
