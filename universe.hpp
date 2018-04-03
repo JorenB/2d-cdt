@@ -7,8 +7,8 @@
 #include "pool.hpp"
 #include "bag.hpp"
 
-#define N_TRIANGLES 20000
-#define N_VERTICES 10000
+#define N_TRIANGLES 2050000
+#define N_VERTICES 1050000
 
 class Universe {
     public:

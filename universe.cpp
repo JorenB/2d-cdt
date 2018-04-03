@@ -6,7 +6,7 @@ Universe::Universe(int nSlices) : nSlices(nSlices) {
 } 
 
 void Universe::initialize() {
-    int w = 10;
+    int w = 10; //  width of the initial strip. Can be adjusted for thermalization purposes - unclear what the ``optimal'' value is.
     int t = nSlices;
 
     std::vector<Vertex*> initialVertices(w*t);
@@ -24,17 +24,21 @@ void Universe::initialize() {
     std::vector<Triangle*> initialTriangles(2*w*t);
     for(int i = 0; i < t; i++) {
         for(int j = 0; j < w; j++) {
-            Triangle *tl = &triangles.create();
-            tl->setVertices(*initialVertices[i*w+j], 
-                     *initialVertices[i*w+(j+1)%w], 
-                     *initialVertices[((i+1)%t)*w+j]);
-            initialTriangles[2*(i*w+j)] = tl;
+            Triangle& tl = triangles.create();
+            tl.setVertices(
+                    *initialVertices[i*w+j], 
+                    *initialVertices[i*w+(j+1)%w], 
+                    *initialVertices[((i+1)%t)*w+j]
+                    );
+            initialTriangles[2*(i*w+j)] = &tl;
 
-            Triangle *tr = &triangles.create();
-            tr->setVertices(*initialVertices[((i+1)%t)*w+j],
+            Triangle& tr = triangles.create();
+            tr.setVertices(
+                    *initialVertices[((i+1)%t)*w+j],
                     *initialVertices[((i+1)%t)*w+(j+1)%w],
-                    *initialVertices[i*w+(j+1)%w]);
-            initialTriangles[2*(i*w+j)+1] = tr;
+                    *initialVertices[i*w+(j+1)%w]
+                    );
+            initialTriangles[2*(i*w+j)+1] = &tr;
         }
     }
 
