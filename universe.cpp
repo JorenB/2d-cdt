@@ -6,7 +6,7 @@ Universe::Universe(int nSlices) : nSlices(nSlices) {
 } 
 
 void Universe::initialize() {
-    int w = 10; //  width of the initial strip. Can be adjusted for thermalization purposes - unclear what the ``optimal'' value is.
+    int w = 10;  // width of the initial strip. Can be adjusted for thermalization purposes - unclear what the ``optimal'' value is.
     int t = nSlices;
 
     std::vector<Vertex*> initialVertices(w*t);
@@ -16,13 +16,14 @@ void Universe::initialize() {
         v->time = i/w;
         v->setNeighbourNumber(2, 2);
         initialVertices[i] = v;
+        verticesFlip.add(*v);
     }
 
     for (int i = 0; i < t; i++) {
         sliceSizes.push_back(w);
     }
 
-    //  create triangles
+    // create triangles
     std::vector<Triangle*> initialTriangles(2*w*t);
     for(int i = 0; i < t; i++) {
         for(int j = 0; j < w; j++) {
@@ -44,7 +45,7 @@ void Universe::initialize() {
         }
     }
 
-    //  set triangle connectivity
+    // set triangle connectivity
     int row = 0, column = 0;
     for(int i = 0; i < t; ++i) {
         for(int j = 0; j < w; ++j) {
@@ -64,16 +65,8 @@ void Universe::initialize() {
         }
     }
 
-    Triangle *tri1 = initialTriangles[3];
-    moveAdd(*tri1);
-    Triangle *tri2 = initialTriangles[20];
-    moveAdd(*tri2);
-    Triangle *tri3 = initialTriangles[38];
-    moveAdd(*tri3);
-
-    for (int i = 1; i < triangles.size()+1; i++) {
-        Triangle tr = triangles[i];
-        /*printf("tri: %d; time: %d, type: %s, tl: %d, tr: %d, tc: %d, vl: %d, vr: %d, vc: %d\n", tr.getKey(),
+    // useful logging string for triangle
+    /*printf("tri: %d; time: %d, type: %s, tl: %d, tr: %d, tc: %d, vl: %d, vr: %d, vc: %d\n", tr.getKey(),
                 tr.time, 
                 tr.type == Triangle::Type::UP ? "up" : "down",
                 tr.getTriangleLeft().getKey(),
@@ -82,16 +75,9 @@ void Universe::initialize() {
                 tr.getVertexLeft().getKey(), 
                 tr.getVertexRight().getKey(), 
                 tr.getVertexCenter().getKey());*/
-    }
 
-
-    for (int i = 1; i < vertices.size()+1; i++) {
-        Vertex v = vertices[i];
-        //printf("v: %d; tl: %d, tr: %d, nu: %d, nd: %d\n", v.getKey(), v.getTriangleLeft().getKey(), v.getTriangleRight().getKey(), v.neighboursUp, v.neighboursDown);
-    }
-
-    //verticesDel.log();
-    
+    // useful logging string for vertex
+    //printf("v: %d; tl: %d, tr: %d, nu: %d, nd: %d\n", v.getKey(), v.getTriangleLeft().getKey(), v.getTriangleRight().getKey(), v.neighboursUp, v.neighboursDown);
 }
 
 void Universe::moveAdd(Triangle& t) {
@@ -104,14 +90,14 @@ void Universe::moveAdd(Triangle& t) {
     Vertex& v = vertices.create();
     v.time = time;
     v.setNeighbourNumber(1, 1);
-    verticesDel.add(v);
+    verticesDelete.add(v);  // replace by updateVertexBags(v)?
     sliceSizes[time] += 1;
 
     t.setVertexRight(v);
     tc.setVertexRight(v);
 
-    Triangle& t1 = triangles.create(); //  right neighbour of t
-    Triangle& t2 = triangles.create(); //  right neighbour of tc
+    Triangle& t1 = triangles.create();  // right neighbour of t
+    Triangle& t2 = triangles.create();  // right neighbour of tc
 
     t1.setVertices(v, vr, t.getVertexCenter());
     t2.setVertices(v, vr, tc.getVertexCenter());
@@ -126,4 +112,97 @@ void Universe::moveAdd(Triangle& t) {
         t.getVertexCenter().changeNeighbourNumber(1, 0);
         tc.getVertexCenter().changeNeighbourNumber(0, 1);
     }
+
+    updateVertexBags(t.getVertexCenter());
+    updateVertexBags(tc.getVertexCenter());
+}
+
+void Universe::moveDelete(Vertex& v) {
+    Triangle& tl = v.getTriangleLeft();
+    Triangle& tr = v.getTriangleRight();
+    Triangle& tlc = tl.getTriangleCenter();
+    Triangle& trc = tr.getTriangleCenter();
+
+    Triangle& trn = tr.getTriangleLeft();
+    Triangle& trcn = trc.getTriangleLeft();
+
+    tl.setTriangleRight(trn);
+    tlc.setTriangleRight(trcn);
+
+    tl.setVertexRight(tr.getVertexRight());
+    tlc.setVertexRight(tr.getVertexRight());
+
+    tr.getVertexRight().setTriangleLeft(tl);
+
+    sliceSizes[v.time] -= 1;
+
+    triangles.destroy(tr);
+    triangles.destroy(trc);
+
+    verticesDelete.remove(v);  // replace by updateVertexBags(v)?
+    vertices.destroy(v);
+}
+
+void Universe::moveFlip(Vertex& v, flipSide side) {
+    if (side == LEFT) {
+        Triangle& tl = v.getTriangleLeft();
+        Triangle& tr = tl.getTriangleRight();
+
+        Vertex& vl = tl.getVertexLeft();
+        Vertex& vlu = tr.getVertexLeft();
+        Vertex& vru = tr.getVertexRight();
+
+        triangles.destroy(tl);
+        triangles.destroy(tr);
+
+        Triangle& tln = triangles.create();
+        Triangle& trn = triangles.create();
+
+        tln.setVertices(vlu, vru, vl);
+        trn.setVertices(vl, v, vru);
+
+        v.changeNeighbourNumber(-1, 0);
+        vl.changeNeighbourNumber(1, 0);
+        vlu.changeNeighbourNumber(0, 1);
+        vru.changeNeighbourNumber(0, -1);
+    
+        updateVertexBags(v);
+        updateVertexBags(vl);
+        updateVertexBags(vlu);
+        updateVertexBags(vru);
+    } else if (side == RIGHT) {
+        Triangle& tr = v.getTriangleRight();
+        Triangle& tl = tr.getTriangleLeft();
+
+        Vertex& vr = tr.getVertexRight();
+        Vertex& vlu = tl.getVertexLeft();
+        Vertex& vru = tl.getVertexRight();
+
+        triangles.destroy(tl);
+        triangles.destroy(tr);
+
+        Triangle& tln = triangles.create();
+        Triangle& trn = triangles.create();
+
+        tln.setVertices(v, vr, vlu);
+        trn.setVertices(vlu, vru, vr);
+
+        v.changeNeighbourNumber(-1, 0);
+        vr.changeNeighbourNumber(1, 0);
+        vlu.changeNeighbourNumber(0, 1);
+        vru.changeNeighbourNumber(0, -1);
+    
+        updateVertexBags(v);
+        updateVertexBags(vr);
+        updateVertexBags(vlu);
+        updateVertexBags(vru);
+    }
+}
+
+void Universe::updateVertexBags(Vertex& v) {
+    if (v.neighboursUp < 2 && verticesFlip.contains(v)) { verticesFlip.remove(v); }
+    if (v.neighboursUp >= 2 && !verticesFlip.contains(v)) { verticesFlip.add(v); }
+
+    if ((v.neighboursUp + v.neighboursDown == 2) && !verticesDelete.contains(v)) { verticesDelete.add(v); }
+    if ((v.neighboursUp + v.neighboursDown != 2) && verticesDelete.contains(v)) { verticesDelete.remove(v); }
 }

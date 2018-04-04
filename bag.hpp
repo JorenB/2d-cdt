@@ -8,43 +8,45 @@
 #ifndef bag_hpp
 #define bag_hpp
 
-template <class T, unsigned int N>										// or size_t or int
+#include <cassert>
+
+template <class T, unsigned int N>  // or size_t or int
 class Bag {
     private:
         int* indices = new int[N+1];
-        //std::array<int, N+1>	indices;									// with holes, indexed by labels, holds indices of obj[]
+        //std::array<int, N+1>	indices;  // with holes, indexed by labels, holds indices of obj[]
         int* elements = new int[N];
-        //std::array<int, N+1>	elements;									// continuous, holds labes
+        //std::array<int, N+1>	elements;  // continuous, holds labes
         unsigned int containerSize;
         unsigned int elementsSize;
 
 enum : int {
-           EMPTY = -1												// or constexpr
+           EMPTY = -1	 // or constexpr
        };
 
     public:
 
        Bag() : containerSize(N+1), elementsSize(0) {
-           printf("size: %d\n", containerSize);
            for(int i = 0; i < containerSize; i++) {
-               indices[i] = EMPTY;
+               indices[i] = EMPTY;  // initialize indices with EMPTY
            }
-           //indices.fill(EMPTY);										// initialize indices with EMPTY
+
            for(int i = 0; i < containerSize; i++) {
-               elements[i] = EMPTY;
+               elements[i] = EMPTY;  // initialize elements with EMPTY
            }
-           //elements.fill(EMPTY);
        }
 
        bool contains(int key) const {
            return indices[key] != EMPTY;
        }
 
+       bool contains(T& obj) { return contains(obj.getKey()); }
+
        void add(T& obj) { add(obj.getKey()); }
        void remove(T& obj) { remove(obj.getKey()); }
 
        void add(int key) {
-           //assert(!contains(key));									// or check directly
+           //assert(!contains(key));  // check is currently performed in Universe
 
            indices[key]		= elementsSize;
            elements[elementsSize]	= key;
@@ -53,7 +55,7 @@ enum : int {
 
 
        void remove(int key) {
-           //assert(contains(key));
+           //assert(contains(key));  // check is currently performed in Universe
            elementsSize--;
 
            auto index	= indices[key];
@@ -66,10 +68,10 @@ enum : int {
        }
 
        void log() {
-           printf("indices\n");
-           for(int i = 0; i < containerSize; i++) {
-               printf("%d: %d\n", i, indices[i]);
-           }
+           //printf("indices\n");
+           /*for(int i = 0; i < containerSize; i++) {
+               //printf("%d: %d\n", i, indices[i]);
+           }*/
            printf("elements\n");
            for(int i = 0; i < elementsSize; i++) {
                printf("%d: %d\n", i, elements[i]);
@@ -78,12 +80,13 @@ enum : int {
            printf("--\n");
        }
 
-       /*int pick(uint64_t r) const {
-           uint64_t x	= (r >> 32) * _size;
-           unsigned int i = (x >> 32);
-           // assert(i < _size);
-           return obj[i];
-       }*/
+       // fix the pick function - think about desired behavior
+       int pick(uint64_t r) const {
+           /*uint64_t x	= (r >> 32) * elementsSize;
+           unsigned int i = (x >> 32);*/
+           assert(r < elementsSize);
+           return elements[r];
+       }
 
        int size() const {
            return elementsSize;

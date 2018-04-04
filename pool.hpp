@@ -37,7 +37,7 @@ class Pool {
          total--;
      }
 
-     void destroy(const T& obj) {
+     void destroy(T& obj) {
          auto tmp = obj.getKey();
          obj.setKey(-first);  // 'deactivate' object
          first = tmp;  // reset index of first inactive object
