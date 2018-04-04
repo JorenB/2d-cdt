@@ -1,5 +1,10 @@
-# Main todos
-Merge working code with improved pool structure
+# Primary
+Check consistency of current moves
+Think about appropriate random picking strategy
+Implement simulation
+Implement observables
+Implement dynamic vertex neighbour lookup. May need to alter Vertex data structure
 
-## Secondary todo (after main merge)
-Remove continuous updating of vertex neighbours - only necessary "on the fly". See Ben Ruijl's code.
+## Secondary 
+Figure out appropriate width of initial strip configuration
+Reconsider whether current add move implementation chooses an insertion site uniformly
