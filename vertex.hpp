@@ -8,7 +8,7 @@ class Vertex : public Simplex {
     public:
         int time;
 
-        int neighboursUp, neighboursDown;
+        int neighboursUp, neighboursDown;                       // No. triangles above and below sharing this vertex
 
         void changeNeighbourNumber(int up, int down) {
             neighboursUp += up;
@@ -26,8 +26,18 @@ class Vertex : public Simplex {
         void setTriangleLeft(Triangle &t)  { tl = &t; }
         void setTriangleRight(Triangle &t) { tr = &t; }
 
+        int key() const { return key_; }
+
+        int key(int key__) {
+            auto tmp = key_;
+            key_    = key__;
+            return tmp;
+        }
+
+
     private:
         Triangle *tl, *tr;
+        int key_;
 
         /*int nu, nd;													//
         void coord(int xu, int xd) {								// Change coord

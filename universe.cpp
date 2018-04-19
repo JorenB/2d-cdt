@@ -13,7 +13,7 @@ void Universe::initialize() {
 
     for (int i = 0; i < w*t; i++) {
         Vertex *v = &vertices.create();
-        v->time = i/w;
+        v->time = i / w;
         v->setNeighbourNumber(2, 2);
         initialVertices[i] = v;
         verticesFlip.add(*v);
@@ -161,15 +161,20 @@ void Universe::moveFlip(Vertex& v, flipSide side) {
         tln.setVertices(vlu, vru, vl);
         trn.setVertices(vl, v, vru);
 
-        v.changeNeighbourNumber(-1, 0);
-        vl.changeNeighbourNumber(1, 0);
-        vlu.changeNeighbourNumber(0, 1);
-        vru.changeNeighbourNumber(0, -1);
+        // v.changeNeighbourNumber(-1, 0);
+        // vl.changeNeighbourNumber(1, 0);
+        // vlu.changeNeighbourNumber(0, 1);
+        // vru.changeNeighbourNumber(0, -1);
     
-        updateVertexBags(v);
-        updateVertexBags(vl);
-        updateVertexBags(vlu);
-        updateVertexBags(vru);
+        // updateVertexBags(v);
+        // updateVertexBags(vl);
+        // updateVertexBags(vlu);
+        // updateVertexBags(vru);
+
+        updateNeighbourNumber(v, -1, 0);
+        updateNeighbourNumber(vl, 1, 0);
+        updateNeighbourNumber(vlu, 0, 1);
+        updateNeighbourNumber(vru, 0, -1);
     } else if (side == RIGHT) {
         Triangle& tr = v.getTriangleRight();
         Triangle& tl = tr.getTriangleLeft();
@@ -198,6 +203,24 @@ void Universe::moveFlip(Vertex& v, flipSide side) {
         updateVertexBags(vru);
     }
 }
+
+
+updateNeighbourNumber(Vertex &v, int up, int down) {
+    if(v.neighboursUp + v.neighboursDown == 2)                  // Since up != 0 or down !=, no need to check if contains
+        verticesDelete.remove(v);
+
+    if ((v.neighboursUp > 2) && (v.neighboursUp + up == 2))
+        verticesFlip.remove(v);
+
+    if ((up > 0) && (v.neighboursUp == 2))
+        verticesFlip.add(v);
+
+    v.changeNeighbourNumber(up, down);
+
+    if (v.neighboursUp + v.neighboursDown == 2)                 // Since up != 0 or down !=, no need to check if does not contain
+        verticesDelete.add(v);
+}
+
 
 void Universe::updateVertexBags(Vertex& v) {
     if (v.neighboursUp < 2 && verticesFlip.contains(v)) { verticesFlip.remove(v); }

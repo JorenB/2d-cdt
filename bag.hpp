@@ -17,8 +17,8 @@ class Bag {
         //std::array<int, N+1>	indices;  // with holes, indexed by labels, holds indices of obj[]
         int* elements = new int[N];
         //std::array<int, N+1>	elements;  // continuous, holds labes
-        unsigned int containerSize;
-        unsigned int elementsSize;
+        unsigned int containerSize;                             // Maybe call capacity_
+        unsigned int elementsSize;                              // size_
 
 enum : int {
            EMPTY = -1	 // or constexpr
@@ -31,7 +31,7 @@ enum : int {
                indices[i] = EMPTY;  // initialize indices with EMPTY
            }
 
-           for(int i = 0; i < containerSize; i++) {
+           for(int i = 0; i < containerSize - 1; i++) {
                elements[i] = EMPTY;  // initialize elements with EMPTY
            }
        }
