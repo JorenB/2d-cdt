@@ -2,12 +2,16 @@
 #define simplex_hpp
 
 class Simplex {
-    public:
-        int getKey() const { return key_; }          // Return key
-        void setKey(int key) { key_ = key; }							// Set key
-
-    private:
-        int key_;														// Label or next free entry in pool
+public:
+	int key() const { return key_; }							// Getter
+	int key(int key__) {										// Setter
+		auto tmp = key_;
+		key_    = key__;
+		return tmp;
+	}
+	
+	private:
+		int key_;												// Label or next free entry in pool
 };
 
 #endif
