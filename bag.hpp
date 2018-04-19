@@ -17,8 +17,8 @@ class Bag {
         //std::array<int, N+1>	indices;  // with holes, indexed by labels, holds indices of obj[]
         int* elements = new int[N];
         //std::array<int, N+1>	elements;  // continuous, holds labes
-        unsigned int containerSize;                             // Maybe call capacity_
-        unsigned int elementsSize;                              // size_
+        unsigned int capacity_;                             // Maybe call capacity_
+        unsigned int size_;                              // size_
 
 enum : int {
            EMPTY = -1	 // or constexpr
@@ -26,54 +26,52 @@ enum : int {
 
     public:
 
-       Bag() : containerSize(N+1), elementsSize(0) {
-           for(int i = 0; i < containerSize; i++) {
+       Bag() : capacity_(N+1), size_(0) {
+           for(unsigned int i = 0; i < capacity_; i++) {
                indices[i] = EMPTY;  // initialize indices with EMPTY
            }
 
-           for(int i = 0; i < containerSize - 1; i++) {
+           for(unsigned int i = 0; i < capacity_ - 1; i++) {
                elements[i] = EMPTY;  // initialize elements with EMPTY
            }
+       }
+
+       void add(T& obj) { add(obj.key()); }
+       void remove(T& obj) { remove(obj.key()); }
+       bool contains(T& obj) { return contains(obj.key()); }
+
+       void add(int key) {
+           //assert(!contains(key));  // check is currently performed in Universe
+
+           indices[key]		= size_;
+           elements[size_]	= key;
+           size_++;
+       }
+
+       void remove(int key) {
+           //assert(contains(key));  // check is currently performed in Universe
+           size_--;
+
+           auto index	= indices[key];
+           auto last	= elements[size_];
+
+           elements[index]		= last;
+           elements[size_] = EMPTY;
+           indices[last]		= index;
+           indices[key]		= EMPTY;
        }
 
        bool contains(int key) const {
            return indices[key] != EMPTY;
        }
 
-       bool contains(T& obj) { return contains(obj.getKey()); }
-
-       void add(T& obj) { add(obj.getKey()); }
-       void remove(T& obj) { remove(obj.getKey()); }
-
-       void add(int key) {
-           //assert(!contains(key));  // check is currently performed in Universe
-
-           indices[key]		= elementsSize;
-           elements[elementsSize]	= key;
-           elementsSize++;
-       }
-
-
-       void remove(int key) {
-           //assert(contains(key));  // check is currently performed in Universe
-           elementsSize--;
-
-           auto index	= indices[key];
-           auto last	= elements[elementsSize];
-
-           elements[index]		= last;
-           elements[elementsSize] = EMPTY;
-           indices[last]		= index;
-           indices[key]		= EMPTY;
-       }
-
        void log() {
            //printf("indices\n");
-           /*for(int i = 0; i < containerSize; i++) {
+           /*for(int i = 0; i < capacity_; i++) {
                //printf("%d: %d\n", i, indices[i]);
            }*/
            printf("elements\n");
-           for(int i = 0; i < elementsSize; i++) {
+           for(int i = 0; i < size_; i++) {
                printf("%d: %d\n", i, elements[i]);
            }
 
@@ -82,14 +80,14 @@ enum : int {
 
        // fix the pick function - think about desired behavior
        int pick(uint64_t r) const {
-           /*uint64_t x	= (r >> 32) * elementsSize;
+           /*uint64_t x	= (r >> 32) * size_;
            unsigned int i = (x >> 32);*/
-           assert(r < elementsSize);
+           assert(r < size_);
            return elements[r];
        }
 
        int size() const {
-           return elementsSize;
+           return size_;
        }
 };
 #endif
