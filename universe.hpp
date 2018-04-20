@@ -2,6 +2,7 @@
 #define universe_hpp
 
 #include <vector>
+#include <random>
 #include "vertex.hpp"
 #include "triangle.hpp"
 #include "pool.hpp"
@@ -11,30 +12,33 @@
 #define N_VERTICES 1000000
 
 class Universe {
-    public:
-        Pool<Triangle, N_TRIANGLES> triangles;
-        Pool<Vertex, N_VERTICES> vertices;
+public:
+	int nSlices;
+	std::vector<int> sliceSizes;
 
-        Bag<Vertex, N_VERTICES> verticesDelete;  // vertices with coordination number 4. These are candidates for the delete move
-        Bag<Vertex, N_VERTICES> verticesFlip;   // vertices with more than two upwards pointing links. These can be used in a flip move
+	Universe(int n_slices, int seed);
 
-        std::vector<int> sliceSizes;
-        int nSlices;
+	void initialize();
 
-        Universe(int n_slices);
+	static Universe* create(int n_slices, int seed);
 
-        void initialize();
+	// moves
+	void moveAdd(Triangle& t);
+	void moveDelete(Vertex& v);
+	enum flipSide { LEFT, RIGHT };
+	void moveFlip(Vertex& v, flipSide side);
 
-        static Universe* create(int n_slices);
+	// bag consistency
+	void updateVertexBags(Vertex& v);
+	void updateNeighbourNumber(Vertex &v, int up, int down);
 
-        // moves
-        void moveAdd(Triangle& t);
-        void moveDelete(Vertex& v);
-        enum flipSide { LEFT, RIGHT };
-        void moveFlip(Vertex& v, flipSide side);
+private:
+	std::default_random_engine rng;
+	Pool<Triangle, N_TRIANGLES> triangles;
+	Pool<Vertex, N_VERTICES> vertices;
 
-        // bag consistency
-        void updateVertexBags(Vertex& v);
-        void updateNeighbourNumber(Vertex &v, int up, int down);
+	Bag<Vertex, N_VERTICES> verticesDelete;  // vertices with coordination number 4. These are candidates for the delete move
+	Bag<Vertex, N_VERTICES> verticesFlip;   // vertices with more than two upwards pointing links. These can be used in a flip move
+
 }; 
 #endif

@@ -1,9 +1,10 @@
 #include "universe.hpp"
 #include <stdio.h>
 
-Universe::Universe(int nSlices) : nSlices(nSlices) {
-    std::vector<int> sliceSizes(nSlices);
-} 
+Universe::Universe(int nSlices, int seed) 
+    : nSlices(nSlices), sliceSizes(nSlices), rng(seed),
+    verticesDelete(rng), verticesFlip(rng)
+    {} 
 
 void Universe::initialize() {
     int w = 10;  // width of the initial strip. Can be adjusted for thermalization purposes - unclear what the ``optimal'' value is.
@@ -80,8 +81,8 @@ void Universe::initialize() {
     //printf("v: %d; tl: %d, tr: %d, nu: %d, nd: %d\n", v.getKey(), v.getTriangleLeft().getKey(), v.getTriangleRight().getKey(), v.neighboursUp, v.neighboursDown);
 }
 
-Universe* Universe::create(int n_slices) {
-    Universe *u = new Universe(n_slices);
+Universe* Universe::create(int n_slices, int seed) {
+    Universe *u = new Universe(n_slices, seed);
     u->initialize();
     return u;
 }

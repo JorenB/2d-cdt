@@ -9,6 +9,7 @@
 #define bag_hpp
 
 #include <cassert>
+#include <random>
 
 template <class T, unsigned int N>  // or size_t or int
 class Bag {
@@ -19,6 +20,7 @@ class Bag {
         std::array<int, N>	elements;  // continuous, holds labes
         unsigned int capacity_;                             // Maybe call capacity_
         unsigned int size_;                              // size_
+        std::default_random_engine &rng;
 
 enum : int {
            EMPTY = -1	 // or constexpr
@@ -26,7 +28,7 @@ enum : int {
 
     public:
 
-       Bag() : capacity_(N), size_(0) {
+       Bag(std::default_random_engine &rng) : capacity_(N), size_(0), rng(rng) {
           indices.fill(EMPTY);                                  // initialize indices with EMPTY
        }
 
@@ -70,6 +72,11 @@ enum : int {
            }
 
            printf("--\n");
+       }
+
+       int pick() const {
+         std::uniform_int_distribution<> uniform(0, size_ - 1);
+         return elements[uniform(rng)];
        }
 
        // fix the pick function - think about desired behavior
