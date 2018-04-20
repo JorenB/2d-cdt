@@ -8,9 +8,11 @@
 #include "universe.hpp"
 
 int main(int argc, const char * argv[]) {
-    Universe u(10);
+    // Universe u(10);
 
-    u.initialize();
+    // u.initialize();
+
+	Universe u	= Universe::create(10);
 
     return 0;
 }

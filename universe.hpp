@@ -25,6 +25,8 @@ class Universe {
 
         void initialize();
 
+        static Universe create(int n_slices);
+
         // moves
         void moveAdd(Triangle& t);
         void moveDelete(Vertex& v);
@@ -33,5 +35,6 @@ class Universe {
 
         // bag consistency
         void updateVertexBags(Vertex& v);
+        void updateNeighbourNumber(Vertex &v, int up, int down);
 }; 
 #endif

@@ -80,6 +80,13 @@ void Universe::initialize() {
     //printf("v: %d; tl: %d, tr: %d, nu: %d, nd: %d\n", v.getKey(), v.getTriangleLeft().getKey(), v.getTriangleRight().getKey(), v.neighboursUp, v.neighboursDown);
 }
 
+Universe Universe::create(int n_slices) {
+    Universe u(n_slices);
+    u.initialize();
+    return u;
+}
+
+
 void Universe::moveAdd(Triangle& t) {
     Triangle& tc = t.getTriangleCenter();
 
@@ -205,7 +212,7 @@ void Universe::moveFlip(Vertex& v, flipSide side) {
 }
 
 
-updateNeighbourNumber(Vertex &v, int up, int down) {
+void Universe::updateNeighbourNumber(Vertex &v, int up, int down) {
     if(v.neighboursUp + v.neighboursDown == 2)                  // Since up != 0 or down !=, no need to check if contains
         verticesDelete.remove(v);
 
