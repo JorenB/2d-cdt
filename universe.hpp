@@ -7,8 +7,8 @@
 #include "pool.hpp"
 #include "bag.hpp"
 
-#define N_TRIANGLES 300 
-#define N_VERTICES 150
+#define N_TRIANGLES 1000000
+#define N_VERTICES 1000000
 
 class Universe {
     public:
@@ -25,7 +25,7 @@ class Universe {
 
         void initialize();
 
-        static Universe create(int n_slices);
+        static Universe* create(int n_slices);
 
         // moves
         void moveAdd(Triangle& t);

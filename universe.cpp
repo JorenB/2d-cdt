@@ -80,9 +80,9 @@ void Universe::initialize() {
     //printf("v: %d; tl: %d, tr: %d, nu: %d, nd: %d\n", v.getKey(), v.getTriangleLeft().getKey(), v.getTriangleRight().getKey(), v.neighboursUp, v.neighboursDown);
 }
 
-Universe Universe::create(int n_slices) {
-    Universe u(n_slices);
-    u.initialize();
+Universe* Universe::create(int n_slices) {
+    Universe *u = new Universe(n_slices);
+    u->initialize();
     return u;
 }
 

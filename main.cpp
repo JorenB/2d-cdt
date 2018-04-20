@@ -12,7 +12,9 @@ int main(int argc, const char * argv[]) {
 
     // u.initialize();
 
-	Universe u	= Universe::create(10);
+	Universe *u	= Universe::create(10);
+
+	delete u;
 
     return 0;
 }
