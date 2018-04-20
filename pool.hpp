@@ -18,7 +18,7 @@ class Pool {
 		 first = 1;
 		 total = 0;
 		 for (int i = 1; i < N + 1; i++) {
-			 elements[i].setKey(-(i+1));
+			 elements[i].key(- (i + 1));
 		 }
 	 }
 
@@ -47,10 +47,6 @@ class Pool {
 		 // first = tmp;  // reset index of first inactive object
 	 	first	= obj.key(-first);
 		total--;
-	 }
-
-	 T& pick() {												// Pool does not have pick()
-		 return elements[1 /* random */];
 	 }
 
 	 int size() const {
