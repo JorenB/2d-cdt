@@ -3,7 +3,7 @@ Check consistency of current moves
 Think about appropriate random picking strategy
 Implement simulation
 Implement observables
-Implement dynamic vertex neighbour lookup. May need to alter Vertex data structure
+Implement dynamic vertex neighbor lookup. May need to alter Vertex data structure
 
 ## Secondary 
 Figure out appropriate width of initial strip configuration

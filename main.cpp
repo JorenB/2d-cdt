@@ -1,4 +1,4 @@
-// Copyright 2018 Joren Brunekreef
+// Copyright 2018 Joren Brunekreef and Andrzej Görlich
 #include <iostream>
 
 #include "pool.hpp"
@@ -8,14 +8,10 @@
 #include "universe.hpp"
 
 int main(int argc, const char * argv[]) {
-    // Universe u(10);
-
-    // u.initialize();
-
 	Universe *u	= Universe::create(10, 1234);
 
 	delete u;
 
-    return 0;
+	return 0;
 }
 

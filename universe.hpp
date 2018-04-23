@@ -1,3 +1,4 @@
+// Copyright 2018 Joren Brunekreef and Andrzej Görlich
 #ifndef universe_hpp
 #define universe_hpp
 
@@ -30,7 +31,7 @@ public:
 
 	// bag consistency
 	void updateVertexBags(Vertex& v);
-	void updateNeighbourNumber(Vertex &v, int up, int down);
+	void updateNeighborNumber(Vertex &v, int up, int down);
 
 private:
 	std::default_random_engine rng;
@@ -39,6 +40,5 @@ private:
 
 	Bag<Vertex, N_VERTICES> verticesDelete;  // vertices with coordination number 4. These are candidates for the delete move
 	Bag<Vertex, N_VERTICES> verticesFlip;   // vertices with more than two upwards pointing links. These can be used in a flip move
-
-}; 
+};
 #endif
