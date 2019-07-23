@@ -8,10 +8,10 @@
 #include "universe.hpp"
 
 int main(int argc, const char * argv[]) {
-	Universe *u	= Universe::create(10, 1234);
+	int slices = 300;
+	Universe *u	= Universe::create(slices, 2);
 
 	delete u;
 
 	return 0;
 }
-

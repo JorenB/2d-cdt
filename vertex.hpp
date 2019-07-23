@@ -1,24 +1,26 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
-#ifndef vertex_hpp
-#define vertex_hpp
+#ifndef VERTEX_HPP_
+#define VERTEX_HPP_
 
+#include <vector>
+#include <unordered_map>
 #include "simplex.hpp"
 
 class Triangle;
 class Vertex : public Simplex {
 public:
-	int time;
+	int time;  // Slice number
+	int nUp;  // No. shared triangles in upper hemisphere
+	int nDown;  // No. shared triangles in lower hemisphere
 
-	int neighborsUp, neighborsDown;  // Number of triangles above and below sharing this vertex
-
-	void changeNeighborNumber(int up, int down) {
-		neighborsUp += up;
-		neighborsDown += down;
+	void changeCoord(int up, int down) {
+		nUp += up;
+		nDown += down;
 	}
 
-	void setNeighborNumber(int up, int down) {
-		neighborsUp = up;
-		neighborsDown = down;
+	void setCoord(int up, int down) {
+		nUp = up;
+		nDown = down;
 	}
 
 	Triangle& getTriangleLeft() { return *tl; }
@@ -31,4 +33,4 @@ private:
 	Triangle *tl, *tr;
 };
 
-#endif
+#endif  // VERTEX_HPP_

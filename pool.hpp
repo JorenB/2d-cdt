@@ -1,6 +1,6 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
-#ifndef pool_hpp
-#define pool_hpp
+#ifndef POOL_HPP_
+#define POOL_HPP_
 
 #include <array>
 // T is the type of object stored
@@ -10,21 +10,23 @@
 template <class T, int N>
 class Pool {
 public:
-	T* elements = new T[N + 1];
+	std::array<T, N> elements;
 	int first;  // the index of the first 'empty' slot
 	int total;  // total number of 'active' slots
 
 	Pool() {
 		first = 1;
 		total = 0;
-		for (int i = 1; i < N + 1; i++) {
+		for (int i = 0; i < N; i++) {
 			elements[i].key(- (i + 1));
 		}
 	}
 
 	T& create() {
 		T& obj = elements[first];
-		first = -obj.key(first);  // update key of first empty slot and 'activate' new object
+		auto tmp = obj.key();
+		obj.key(first);
+		first = -tmp;  // update key of first empty slot and 'activate' new object
 		total++;
 		return obj;
 	}
@@ -36,7 +38,9 @@ public:
 	}
 
 	void destroy(T& obj) {
-		first = obj.key(-first);  // 'deactivate' object and update first empty slot
+		auto tmp = obj.key();
+		obj.key(-first);
+		first = tmp;  // 'deactivate' object and update first empty slot
 		total--;
 	}
 
@@ -47,13 +51,5 @@ public:
 	T& operator[] (int i) {
 		return elements[i];
 	}
-
-	void log() {
-		for (int i = 0; i < sizeof(elements); i++) {
-			printf("%d: %d \n", i, elements[i].getKey());
-		}
-		printf("first: %d\n", first);
-		printf("--\n");
-	}
 };
-#endif
+#endif  // POOL_HPP_

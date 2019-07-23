@@ -1,6 +1,6 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
-#ifndef triangle_hpp
-#define triangle_hpp
+#ifndef TRIANGLE_HPP_
+#define TRIANGLE_HPP_
 
 #include <iostream>
 #include "simplex.hpp"
@@ -18,13 +18,13 @@ public:
 	Triangle& getTriangleCenter() const noexcept { return *tc; }
 
 	void setTriangleRight(Triangle& t) {
-		tr		= &t;
-		t.tl	= this;
+		tr = &t;
+		t.tl = this;
 	}
 
 	void setTriangleLeft(Triangle& t) {
-		tl		= &t;
-		t.tr	= this;
+		tl = &t;
+		t.tr = this;
 	}
 
 	void setTriangleCenter(Triangle& t) {
@@ -46,10 +46,36 @@ public:
 	Vertex& getVertexRight() const noexcept { return *vr; }
 	Vertex& getVertexCenter() const noexcept { return *vc; }
 
-	void setVertexLeft(Vertex& v);
-	void setVertexRight(Vertex& v);
+	void setVertexLeft(Vertex& v) {
+		vl = &v;
+		time = vl->time;
+		if (type == UP) {
+			v.setTriangleRight(*this);
+		}
+	}
+
+	void setVertexRight(Vertex& v) {
+		vr = &v;
+		if (type == UP) {
+			v.setTriangleLeft(*this);
+		}
+	}
+
+	void setVertices(Vertex &vl_, Vertex &vr_, Vertex &vc_) {
+		vl	= &vl_;
+		vr	= &vr_;
+		vc	= &vc_;
+
+		time = vl->time;
+		updateType();
+
+		if (type == UP) {
+			vl_.setTriangleRight(*this);
+			vr_.setTriangleLeft(*this);
+		}
+	}
+
 	void setVertexCenter(Vertex& v) { vc = &v; }
-	void setVertices(Vertex &vl_, Vertex &vr_, Vertex &vc_);
 
 	bool isUpwards() {
 		return type == UP;
@@ -79,4 +105,4 @@ private:
 	}
 };
 
-#endif
+#endif  // TRIANGLE_HPP_
