@@ -8,7 +8,7 @@
 
 class Triangle : public Pool<Triangle> {
 public:
-	static const unsigned pool_size = 1000;
+	static const unsigned pool_size = 2*1000000;
 	enum Type { UP, DOWN };
 
 	int time;  // proper time at base of triangle
@@ -50,7 +50,7 @@ public:
 
 	void setVertexLeft(Vertex& v) {
 		vl = v.key();
-		time = Vertex::at(vl).time;
+		time = v.time;
 		if (type == UP) {
 			v.setTriangleRight(*this);
 		}
@@ -68,7 +68,7 @@ public:
 		vr	= vr_.key();
 		vc	= vc_.key();
 
-		time = Vertex::at(vl).time;
+		time = vl_.time;
 		updateType();
 
 		if (type == UP) {
@@ -92,7 +92,6 @@ private:
 	int	vl, vr, vc;
 	
 	void updateType() {
-		printf("vl.t: %d, vc.t: %d\n", Vertex::at(vl).time, Vertex::at(vc).time);
 		if (Vertex::at(vl).time > Vertex::at(vc).time) {
 			type = UP;
 		} else {
@@ -107,5 +106,4 @@ private:
 		}
 	}
 };
-
 #endif  // TRIANGLE_HPP_

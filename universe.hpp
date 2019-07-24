@@ -9,13 +9,10 @@
 //#include "pool.hpp"
 //#include "bag.hpp"
 
-//#define N_TRIANGLES 2000000
-//#define N_VERTICES 1000000
-
 class Universe {
 public:
 	static int nSlices;
-//	static std::vector<int> sliceSizes;
+	static std::vector<int> sliceSizes;
 
 	/*
 	Bag<Triangle, N_TRIANGLES> trianglesAll;  // All triangles. These are candidates for the add move

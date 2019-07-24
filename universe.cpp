@@ -1,9 +1,9 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
 #include "universe.hpp"
-#include <cstdio>
 
 //Universe::Universe(int nSlices, int seed) : nSlices(nSlices)/*, trianglesAll(rng), verticesFour(rng), verticesPlus(rng)*/, rng(seed) {} 
 int Universe::nSlices = 0;
+std::vector<int> Universe::sliceSizes;
 
 void Universe::create(int nSlices_, int seed_) {
 	nSlices = nSlices_;
@@ -14,8 +14,6 @@ void Universe::initialize() {
 	int w = 10;  // width of the initial strip. Can be adjusted for thermalization purposes - unclear what the 'optimal' value is.
 	int t = nSlices;
 
-	printf("slices: %d\n", nSlices);
-	
 	std::vector<Vertex*> initialVertices(w*t);
 
 	for (int i = 0; i < w*t; i++) {
@@ -27,32 +25,31 @@ void Universe::initialize() {
 	}
 
 	for (int i = 0; i < t; i++) {
-		//sliceSizes.push_back(w);
+		sliceSizes.push_back(w);
 	}
-	/*
 
 	// create triangles
 	std::vector<Triangle*> initialTriangles(2*w*t);
 	for(int i = 0; i < t; i++) {
 		for(int j = 0; j < w; j++) {
-			Triangle& tl = triangles.create();
+			Triangle& tl = Triangle::at(Triangle::create());
 			tl.setVertices(
 					*initialVertices[i*w+j],
 					*initialVertices[i*w+(j+1)%w],
 					*initialVertices[((i+1)%t)*w+j]);
 			initialTriangles[2*(i*w+j)] = &tl;
 
-			Triangle& tr = triangles.create();
+			Triangle& tr = Triangle::at(Triangle::create());
 			tr.setVertices(
 					*initialVertices[((i+1)%t)*w+j],
 					*initialVertices[((i+1)%t)*w+(j+1)%w],
 					*initialVertices[i*w+(j+1)%w]);
 			initialTriangles[2*(i*w+j)+1] = &tr;
-			trianglesAll.add(tl);
-			trianglesAll.add(tr);
+			//trianglesAll.add(tl);
+			//trianglesAll.add(tr);
 		}
 	}
-
+	
 	// set triangle connectivity
 	int row = 0, column = 0;
 	for(int i = 0; i < t; ++i) {
@@ -70,9 +67,6 @@ void Universe::initialize() {
 					*initialTriangles[(row + column + 2*w)%(2*t*w)]);
 		}
 	}
-*/
-	// useful logging string for vertex
-	// printf("v: %d; tl: %d, tr: %d, nu: %d, nd: %d\n", v.getKey(), v.getTriangleLeft().getKey(), v.getTriangleRight().getKey(), v.neighborsUp, v.neighborsDown);
 }
 
 
