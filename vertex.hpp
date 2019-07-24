@@ -2,16 +2,16 @@
 #ifndef VERTEX_HPP_
 #define VERTEX_HPP_
 
-#include <vector>
-#include <unordered_map>
-#include "simplex.hpp"
+#include "pool.hpp"
 
 class Triangle;
-class Vertex : public Simplex {
+class Vertex : public Pool<Vertex> {
 public:
+	static const unsigned pool_size = 1000;
 	int time;  // Slice number
 	int nUp;  // No. shared triangles in upper hemisphere
 	int nDown;  // No. shared triangles in lower hemisphere
+	
 
 	void changeCoord(int up, int down) {
 		nUp += up;
@@ -23,14 +23,14 @@ public:
 		nDown = down;
 	}
 
-	Triangle& getTriangleLeft() { return *tl; }
-	Triangle& getTriangleRight() { return *tr; }
+	Triangle& getTriangleLeft();
+	Triangle& getTriangleRight();
 
-	void setTriangleLeft(Triangle &t)  { tl = &t; }
-	void setTriangleRight(Triangle &t) { tr = &t; }
+	void setTriangleLeft(Triangle &t);
+	void setTriangleRight(Triangle &t);
 
 private:
-	Triangle *tl, *tr;
+	int tl, tr;
 };
 
 #endif  // VERTEX_HPP_

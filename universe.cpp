@@ -2,31 +2,34 @@
 #include "universe.hpp"
 #include <cstdio>
 
-Universe::Universe(int nSlices, int seed) : nSlices(nSlices), trianglesAll(rng), verticesFour(rng), verticesPlus(rng), rng(seed) {} 
+//Universe::Universe(int nSlices, int seed) : nSlices(nSlices)/*, trianglesAll(rng), verticesFour(rng), verticesPlus(rng)*/, rng(seed) {} 
+int Universe::nSlices = 0;
 
-Universe* Universe::create(int n_slices, int seed) {
-	Universe *u = new Universe(n_slices, seed);
-	u->initialize();
-	return u;
+void Universe::create(int nSlices_, int seed_) {
+	nSlices = nSlices_;
+	initialize();
 }
 
 void Universe::initialize() {
 	int w = 10;  // width of the initial strip. Can be adjusted for thermalization purposes - unclear what the 'optimal' value is.
 	int t = nSlices;
 
+	printf("slices: %d\n", nSlices);
+	
 	std::vector<Vertex*> initialVertices(w*t);
 
 	for (int i = 0; i < w*t; i++) {
-		Vertex& v = vertices.create();
+		Vertex& v = Vertex::at(Vertex::create());
 		v.time = i / w;
 		v.setCoord(3, 3);
 		initialVertices[i] = &v;
-		verticesPlus.add(v);
+		//verticesPlus.add(v);
 	}
 
 	for (int i = 0; i < t; i++) {
-		sliceSizes.push_back(w);
+		//sliceSizes.push_back(w);
 	}
+	/*
 
 	// create triangles
 	std::vector<Triangle*> initialTriangles(2*w*t);
@@ -67,13 +70,13 @@ void Universe::initialize() {
 					*initialTriangles[(row + column + 2*w)%(2*t*w)]);
 		}
 	}
-
+*/
 	// useful logging string for vertex
 	// printf("v: %d; tl: %d, tr: %d, nu: %d, nd: %d\n", v.getKey(), v.getTriangleLeft().getKey(), v.getTriangleRight().getKey(), v.neighborsUp, v.neighborsDown);
 }
 
 
-void Universe::insertVertex(Triangle& t) {
+/*void Universe::insertVertex(Triangle& t) {
 	Triangle& tc = t.getTriangleCenter();
 
 	Vertex& vr = t.getVertexRight();
@@ -234,3 +237,4 @@ void Universe::updateVertexCoord(Vertex &v, int up, int down) {
 	if (v.nUp + v.nDown == 4)  // Since up != 0 or down !=, no need to check if does not contain
 		verticesFour.add(v);
 }
+*/
