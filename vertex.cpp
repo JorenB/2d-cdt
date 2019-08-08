@@ -2,8 +2,8 @@
 #include "vertex.hpp"
 #include "triangle.hpp"
 
-Triangle& Vertex::getTriangleLeft() { return Triangle::at(tl); }
-Triangle& Vertex::getTriangleRight() { return Triangle::at(tr); }
+Triangle::Label Vertex::getTriangleLeft() { return tl; }
+Triangle::Label Vertex::getTriangleRight() { return tr; }
 
-void Vertex::setTriangleLeft(Triangle& t) { tl = t.key(); }
-void Vertex::setTriangleRight(Triangle& t) { tr = t.key(); }
+void Vertex::setTriangleLeft(Triangle::Label t) { tl = t; }
+void Vertex::setTriangleRight(Triangle::Label t) { tr = t; }

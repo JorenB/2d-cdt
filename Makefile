@@ -1,5 +1,5 @@
 CXX = /usr/local/opt/llvm/bin/clang++
-CXXFLAGS = -std=c++11 -O2 -Wall
+CXXFLAGS = -std=c++14 -O2 -Wall
 
 .PHONY: all clean
 

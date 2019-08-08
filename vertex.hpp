@@ -23,14 +23,14 @@ public:
 		nDown = down;
 	}
 
-	Triangle& getTriangleLeft();
-	Triangle& getTriangleRight();
+	Pool<Triangle>::Label getTriangleLeft();
+	Pool<Triangle>::Label getTriangleRight();
 
-	void setTriangleLeft(Triangle &t);
-	void setTriangleRight(Triangle &t);
+	void setTriangleLeft(Pool<Triangle>::Label t);
+	void setTriangleRight(Pool<Triangle>::Label t);
 
 private:
-	int tl, tr;
+	Pool<Triangle>::Label tl, tr;  // triangles
 };
 
 #endif  // VERTEX_HPP_

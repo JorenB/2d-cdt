@@ -14,13 +14,13 @@ void Universe::initialize() {
 	int w = 10;  // width of the initial strip. Can be adjusted for thermalization purposes - unclear what the 'optimal' value is.
 	int t = nSlices;
 
-	std::vector<Vertex*> initialVertices(w*t);
+	std::vector<Vertex::Label> initialVertices(w*t);
 
 	for (int i = 0; i < w*t; i++) {
-		Vertex& v = Vertex::at(Vertex::create());
-		v.time = i / w;
-		v.setCoord(3, 3);
-		initialVertices[i] = &v;
+		auto v = Vertex::create();
+		v->time = i / w;
+		v->setCoord(3, 3);
+		initialVertices[i] = v;
 		//verticesPlus.add(v);
 	}
 
@@ -28,23 +28,25 @@ void Universe::initialize() {
 		sliceSizes.push_back(w);
 	}
 
+	printf("u: %d\n", nSlices);
+
 	// create triangles
-	std::vector<Triangle*> initialTriangles(2*w*t);
+	std::vector<Triangle::Label> initialTriangles(2*w*t);
 	for(int i = 0; i < t; i++) {
 		for(int j = 0; j < w; j++) {
-			Triangle& tl = Triangle::at(Triangle::create());
-			tl.setVertices(
-					*initialVertices[i*w+j],
-					*initialVertices[i*w+(j+1)%w],
-					*initialVertices[((i+1)%t)*w+j]);
-			initialTriangles[2*(i*w+j)] = &tl;
+			auto tl = Triangle::create();
+			tl->setVertices(
+					initialVertices[i*w+j],
+					initialVertices[i*w+(j+1)%w],
+					initialVertices[((i+1)%t)*w+j]);
+			initialTriangles[2*(i*w+j)] = tl;
 
-			Triangle& tr = Triangle::at(Triangle::create());
-			tr.setVertices(
-					*initialVertices[((i+1)%t)*w+j],
-					*initialVertices[((i+1)%t)*w+(j+1)%w],
-					*initialVertices[i*w+(j+1)%w]);
-			initialTriangles[2*(i*w+j)+1] = &tr;
+			auto tr = Triangle::create();
+			tr->setVertices(
+					initialVertices[((i+1)%t)*w+j],
+					initialVertices[((i+1)%t)*w+(j+1)%w],
+					initialVertices[i*w+(j+1)%w]);
+			initialTriangles[2*(i*w+j)+1] = tr;
 			//trianglesAll.add(tl);
 			//trianglesAll.add(tr);
 		}
@@ -57,14 +59,14 @@ void Universe::initialize() {
 			row = 2*i*w;
 			column = 2*j;
 			initialTriangles[row + column]->setTriangles(
-					*initialTriangles[row + (column-1+2*w)%(2*w)],
-					*initialTriangles[row + column + 1],
-					*initialTriangles[(row + column -2*w+1+2*t*w)%(2*t*w)]);
+					initialTriangles[row + (column-1+2*w)%(2*w)],
+					initialTriangles[row + column + 1],
+					initialTriangles[(row + column -2*w+1+2*t*w)%(2*t*w)]);
 
 			initialTriangles[row + column +1]->setTriangles(
-					*initialTriangles[row + column],
-					*initialTriangles[row + (column+2)%(2*w)],
-					*initialTriangles[(row + column + 2*w)%(2*t*w)]);
+					initialTriangles[row + column],
+					initialTriangles[row + (column+2)%(2*w)],
+					initialTriangles[(row + column + 2*w)%(2*t*w)]);
 		}
 	}
 }

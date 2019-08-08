@@ -14,70 +14,70 @@ public:
 	int time;  // proper time at base of triangle
 	Type type;
 
-	Triangle& getTriangleLeft() const noexcept { return Triangle::at(tl); }
-	Triangle& getTriangleRight() const noexcept { return Triangle::at(tr); }
-	Triangle& getTriangleCenter() const noexcept { return Triangle::at(tc); }
+	Triangle::Label getTriangleLeft() const noexcept { return tl; }
+	Triangle::Label getTriangleRight() const noexcept { return tr; }
+	Triangle::Label getTriangleCenter() const noexcept { return tc; }
 
-	void setTriangleLeft(Triangle& t) {
-		tl = t.key();
-		t.tr = key();
+	void setTriangleLeft(Triangle::Label t) {
+		tl = t;
+		t->tr = *this;
 	}
 
-	void setTriangleRight(Triangle& t) {
-		tr = t.key();
-		t.tl = key();
+	void setTriangleRight(Triangle::Label t) {
+		tr = t;
+		t->tl = *this;
 	}
 
-	void setTriangleCenter(Triangle& t) {
-		tc = t.key();
-		t.tc = key();
+	void setTriangleCenter(Triangle::Label t) {
+		tc = t;
+		t->tc = *this;
 	}
 
-	void setTriangles(Triangle &tl_, Triangle &tr_, Triangle &tc_) {
-		tl = tl_.key();
-		tr = tr_.key();
-		tc = tc_.key();
+	void setTriangles(Triangle::Label tl_, Triangle::Label tr_, Triangle::Label tc_) {
+		tl = tl_;
+		tr = tr_;
+		tc = tc_;
 
-		tl_.tr = key();
-		tr_.tl = key();
-		tc_.tc = key();
+		tl_->tr = *this;
+		tr_->tl = *this;
+		tc_->tc = *this;
 	}
 
 	
-	Vertex& getVertexLeft() const noexcept { return Vertex::at(vl); }
-	Vertex& getVertexRight() const noexcept { return Vertex::at(vr); }
-	Vertex& getVertexCenter() const noexcept { return Vertex::at(vc); }
+	Vertex::Label getVertexLeft() const noexcept { return vl; }
+	Vertex::Label getVertexRight() const noexcept { return vr; }
+	Vertex::Label getVertexCenter() const noexcept { return vc; }
 
-	void setVertexLeft(Vertex& v) {
-		vl = v.key();
-		time = v.time;
+	void setVertexLeft(Vertex::Label v) {
+		vl = v;
+		time = v->time;
 		if (type == UP) {
-			v.setTriangleRight(*this);
+			v->setTriangleRight(*this);
 		}
 	}
 
-	void setVertexRight(Vertex& v) {
-		vr = v.key();
+	void setVertexRight(Vertex::Label v) {
+		vr = v;
 		if (type == UP) {
-			v.setTriangleLeft(*this);
+			v->setTriangleLeft(*this);
 		}
 	}
 
-	void setVertices(Vertex &vl_, Vertex &vr_, Vertex &vc_) {
-		vl	= vl_.key();
-		vr	= vr_.key();
-		vc	= vc_.key();
+	void setVertices(Vertex::Label vl_, Vertex::Label vr_, Vertex::Label vc_) {
+		vl	= vl_;
+		vr	= vr_;
+		vc	= vc_;
 
-		time = vl_.time;
+		time = vl_->time;
 		updateType();
 
 		if (type == UP) {
-			vl_.setTriangleRight(*this);
-			vr_.setTriangleLeft(*this);
+			vl_->setTriangleRight(*this);
+			vr_->setTriangleLeft(*this);
 		}
 	}
 
-	void setVertexCenter(Vertex& v) { vc = v.key(); }
+	void setVertexCenter(Vertex::Label v) { vc = v; }
 
 	bool isUpwards() {
 		return type == UP;
@@ -88,20 +88,20 @@ public:
 	}
 
 private:
-	int	tl, tr, tc;
-	int	vl, vr, vc;
+	Pool<Triangle>::Label tl, tr, tc;
+	Pool<Vertex>::Label vl, vr, vc;
 	
 	void updateType() {
-		if (Vertex::at(vl).time > Vertex::at(vc).time) {
+		if (vl->time > vc->time) {
 			type = UP;
 		} else {
 			type = DOWN;
 		}
 
-		if (Vertex::at(vl).time == 0 && Vertex::at(vc).time > 1) {
+		if (vl->time == 0 && vc->time > 1) {
 			type = UP;
 		}
-		if (Vertex::at(vc).time == 0 && Vertex::at(vl).time > 1) {
+		if (vc->time == 0 && vl->time > 1) {
 			type = DOWN;
 		}
 	}
