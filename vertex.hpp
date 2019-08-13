@@ -7,7 +7,7 @@
 class Triangle;
 class Vertex : public Pool<Vertex> {
 public:
-	static const unsigned pool_size = 1000;
+	static const unsigned pool_size = 10000000;
 	int time;  // Slice number
 	int nUp;  // No. shared triangles in upper hemisphere
 	int nDown;  // No. shared triangles in lower hemisphere

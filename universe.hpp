@@ -22,7 +22,7 @@ public:
 
 	static void initialize();
 
-	static void create(int n_slices, int seed);
+	static void create(int n_slices);
 
 	// moves
 	static void insertVertex(Triangle::Label t);

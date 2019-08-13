@@ -8,13 +8,13 @@ Bag<Triangle, Triangle::pool_size> Universe::trianglesAll(rng);
 Bag<Vertex, Vertex::pool_size> Universe::verticesFour(rng);
 Bag<Vertex, Vertex::pool_size> Universe::verticesPlus(rng);
 
-void Universe::create(int nSlices_, int seed_) {
+void Universe::create(int nSlices_) {
 	nSlices = nSlices_;
 	initialize();
 }
 
 void Universe::initialize() {
-	int w = 10;  // width of the initial strip. Can be adjusted for thermalization purposes - unclear what the 'optimal' value is.
+	int w = 3;  // width of the initial strip. Can be adjusted for thermalization purposes - unclear what the 'optimal' value is.
 	int t = nSlices;
 
 	std::vector<Vertex::Label> initialVertices(w*t);
@@ -30,8 +30,6 @@ void Universe::initialize() {
 	for (int i = 0; i < t; i++) {
 		sliceSizes.push_back(w);
 	}
-
-	printf("u: %d\n", nSlices);
 
 	// create triangles
 	std::vector<Triangle::Label> initialTriangles(2*w*t);

@@ -8,7 +8,7 @@
 
 class Triangle : public Pool<Triangle> {
 public:
-	static const unsigned pool_size = 2*1000000;
+	static const unsigned pool_size = 2*Vertex::pool_size;
 	enum Type { UP, DOWN };
 
 	int time;  // proper time at base of triangle
