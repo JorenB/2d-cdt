@@ -6,34 +6,34 @@
 #include <random>
 #include "vertex.hpp"
 #include "triangle.hpp"
-//#include "pool.hpp"
-//#include "bag.hpp"
+#include "pool.hpp"
+#include "bag.hpp"
 
 class Universe {
 public:
 	static int nSlices;
 	static std::vector<int> sliceSizes;
 
-	/*
-	Bag<Triangle, N_TRIANGLES> trianglesAll;  // All triangles. These are candidates for the add move
-	Bag<Vertex, N_VERTICES> verticesFour;  // Vertices with coordination number 4. These are candidates for the delete move
-	Bag<Vertex, N_VERTICES> verticesPlus;  // Vertices with more than two triangles above. These are candidates for the flip move
-	*/
+	
+	static Bag<Triangle, Triangle::pool_size> trianglesAll;  // All triangles. These are candidates for the add move
+	static Bag<Vertex, Vertex::pool_size> verticesFour;  // Vertices with coordination number 4. These are candidates for the delete move
+	static Bag<Vertex, Vertex::pool_size> verticesPlus;  // Vertices with more than two triangles above. These are candidates for the flip move
+	
 
 	static void initialize();
 
 	static void create(int n_slices, int seed);
 
-	/*
 	// moves
-	void insertVertex(Triangle& t);
-	void removeVertex(Vertex& v);
+	static void insertVertex(Triangle::Label t);
+	static void removeVertex(Vertex::Label v);
 	enum flipSide { LEFT, RIGHT };
-	void flipLink(Vertex& v, flipSide side);
+	static void flipLink(Vertex::Label v, flipSide side);
 
+	
 	// bag consistency
-	void updateVertexCoord(Vertex &v, int up, int down);
-	*/
+	static void updateVertexCoord(Vertex::Label v, int up, int down);
+	
 
 private:
 	Universe() {}

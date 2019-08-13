@@ -1,9 +1,12 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
 #include "universe.hpp"
 
-//Universe::Universe(int nSlices, int seed) : nSlices(nSlices)/*, trianglesAll(rng), verticesFour(rng), verticesPlus(rng)*/, rng(seed) {} 
 int Universe::nSlices = 0;
 std::vector<int> Universe::sliceSizes;
+std::default_random_engine Universe::rng(0);  // TODO: set seed somewhere else
+Bag<Triangle, Triangle::pool_size> Universe::trianglesAll(rng);
+Bag<Vertex, Vertex::pool_size> Universe::verticesFour(rng);
+Bag<Vertex, Vertex::pool_size> Universe::verticesPlus(rng);
 
 void Universe::create(int nSlices_, int seed_) {
 	nSlices = nSlices_;
@@ -21,7 +24,7 @@ void Universe::initialize() {
 		v->time = i / w;
 		v->setCoord(3, 3);
 		initialVertices[i] = v;
-		//verticesPlus.add(v);
+		verticesPlus.add(v);
 	}
 
 	for (int i = 0; i < t; i++) {
@@ -47,8 +50,8 @@ void Universe::initialize() {
 					initialVertices[((i+1)%t)*w+(j+1)%w],
 					initialVertices[i*w+(j+1)%w]);
 			initialTriangles[2*(i*w+j)+1] = tr;
-			//trianglesAll.add(tl);
-			//trianglesAll.add(tr);
+			trianglesAll.add(tl);
+			trianglesAll.add(tr);
 		}
 	}
 	
@@ -72,144 +75,145 @@ void Universe::initialize() {
 }
 
 
-/*void Universe::insertVertex(Triangle& t) {
-	Triangle& tc = t.getTriangleCenter();
+void Universe::insertVertex(Triangle::Label t) {
+	Triangle::Label tc = t->getTriangleCenter();
 
-	Vertex& vr = t.getVertexRight();
+	Vertex::Label vr = t->getVertexRight();
 
-	int time = t.time;
+	int time = t->time;
 
-	Vertex& v = vertices.create();
-	v.time = time;
-	v.setCoord(2, 2);
+	Vertex::Label v = Vertex::create();
+	v->time = time;
+	v->setCoord(2, 2);
 	verticesFour.add(v);
 	sliceSizes[time] += 1;
 
-	t.setVertexRight(v);
-	tc.setVertexRight(v);
+	t->setVertexRight(v);
+	tc->setVertexRight(v);
 
-	Triangle& t1 = triangles.create();  // right neighbor of t
-	Triangle& t2 = triangles.create();  // right neighbor of tc
+	Triangle::Label t1 = Triangle::create();  // right neighbor of t
+	Triangle::Label t2 = Triangle::create();  // right neighbor of tc
 	trianglesAll.add(t1);
 	trianglesAll.add(t2);
 
-	t1.setVertices(v, vr, t.getVertexCenter());
-	t2.setVertices(v, vr, tc.getVertexCenter());
+	t1->setVertices(v, vr, t->getVertexCenter());
+	t2->setVertices(v, vr, tc->getVertexCenter());
 
-	t1.setTriangles(t, t.getTriangleRight(), t2);
-	t2.setTriangles(tc, tc.getTriangleRight(), t1);
+	t1->setTriangles(t, t->getTriangleRight(), t2);
+	t2->setTriangles(tc, tc->getTriangleRight(), t1);
 
-	if (t.isUpwards()) {
-		updateVertexCoord(t.getVertexCenter(), 0, 1);
-		updateVertexCoord(tc.getVertexCenter(), 1, 0);
-	} else if (t.isDownwards()) {
-		updateVertexCoord(t.getVertexCenter(), 1, 0);
-		updateVertexCoord(tc.getVertexCenter(), 0, 1);
+	if (t->isUpwards()) {
+		updateVertexCoord(t->getVertexCenter(), 0, 1);
+		updateVertexCoord(tc->getVertexCenter(), 1, 0);
+	} else if (t->isDownwards()) {
+		updateVertexCoord(t->getVertexCenter(), 1, 0);
+		updateVertexCoord(tc->getVertexCenter(), 0, 1);
 	}
 }
 
-void Universe::removeVertex(Vertex& v) {
-	Triangle& tl = v.getTriangleLeft();
-	Triangle& tr = v.getTriangleRight();
-	Triangle& tlc = tl.getTriangleCenter();
-	Triangle& trc = tr.getTriangleCenter();
+void Universe::removeVertex(Vertex::Label v) {
+	Triangle::Label tl = v->getTriangleLeft();
+	Triangle::Label tr = v->getTriangleRight();
+	Triangle::Label tlc = tl->getTriangleCenter();
+	Triangle::Label trc = tr->getTriangleCenter();
 
-	Triangle& trn = tr.getTriangleRight();
-	Triangle& trcn = trc.getTriangleRight();
+	Triangle::Label trn = tr->getTriangleRight();
+	Triangle::Label trcn = trc->getTriangleRight();
 
-	tl.setTriangleRight(trn);
-	tlc.setTriangleRight(trcn);
+	tl->setTriangleRight(trn);
+	tlc->setTriangleRight(trcn);
 
-	tl.setVertexRight(tr.getVertexRight());
-	tlc.setVertexRight(tr.getVertexRight());
+	tl->setVertexRight(tr->getVertexRight());
+	tlc->setVertexRight(tr->getVertexRight());
 
-	tr.getVertexRight().setTriangleLeft(tl);
+	tr->getVertexRight()->setTriangleLeft(tl);
 
-	sliceSizes[v.time] -= 1;
+	sliceSizes[v->time] -= 1;
 
 	trianglesAll.remove(tr);
 	trianglesAll.remove(trc);
-	triangles.destroy(tr);
-	triangles.destroy(trc);
+	Triangle::destroy(tr);
+	Triangle::destroy(trc);
 
-	Vertex& vu = tl.getVertexCenter();
-	Vertex& vd = tlc.getVertexCenter();
+	Vertex::Label vu = tl->getVertexCenter();
+	Vertex::Label vd = tlc->getVertexCenter();
 
 	updateVertexCoord(vu, 0, -1);
 	updateVertexCoord(vd, -1, 0);
 
 	verticesFour.remove(v);
-	vertices.destroy(v);
+	Vertex::destroy(v);
 }
 
-void Universe::flipLink(Vertex& v, flipSide side) {
+void Universe::flipLink(Vertex::Label v, flipSide side) {
 	std::bernoulli_distribution d(0.5);
 
+	// simplify and add check
 	if (side == LEFT) {
-		Triangle& tl = v.getTriangleLeft();
-		Triangle& tr = tl.getTriangleRight();
-		Triangle& tll = tl.getTriangleLeft();
-		Triangle& trr = tr.getTriangleRight();
-		Triangle& tlc = tl.getTriangleCenter();
-		Triangle& trc = tr.getTriangleCenter();
+		Triangle::Label tl = v->getTriangleLeft();
+		Triangle::Label tr = tl->getTriangleRight();
+		Triangle::Label tll = tl->getTriangleLeft();
+		Triangle::Label trr = tr->getTriangleRight();
+		Triangle::Label tlc = tl->getTriangleCenter();
+		Triangle::Label trc = tr->getTriangleCenter();
 
-		Vertex& vl = tl.getVertexLeft();
-		Vertex& vlu = tr.getVertexLeft();
-		Vertex& vru = tr.getVertexRight();
+		Vertex::Label vl = tl->getVertexLeft();
+		Vertex::Label vlu = tr->getVertexLeft();
+		Vertex::Label vru = tr->getVertexRight();
 
 		trianglesAll.remove(tl);
 		trianglesAll.remove(tr);
-		triangles.destroy(tl);
-		triangles.destroy(tr);
+		Triangle::destroy(tl);
+		Triangle::destroy(tr);
 
-		Triangle& tln = triangles.create();
-		Triangle& trn = triangles.create();
+		Triangle::Label tln = Triangle::create();
+		Triangle::Label trn = Triangle::create();
 		trianglesAll.add(tln);
 		trianglesAll.add(trn);
 
-		tln.setVertices(vlu, vru, vl);
-		trn.setVertices(vl, v, vru);
+		tln->setVertices(vlu, vru, vl);
+		trn->setVertices(vl, v, vru);
 
-		tln.setTriangleLeft(tll);
-		tln.setTriangleRight(trn);
-		trn.setTriangleRight(trr);
-		tln.setTriangleCenter(trc);
-		trn.setTriangleCenter(tlc);
+		tln->setTriangleLeft(tll);
+		tln->setTriangleRight(trn);
+		trn->setTriangleRight(trr);
+		tln->setTriangleCenter(trc);
+		trn->setTriangleCenter(tlc);
 
 		updateVertexCoord(v, -1, 0);
 		updateVertexCoord(vl, 1, 0);
 		updateVertexCoord(vlu, 0, -1);
 		updateVertexCoord(vru, 0, 1);
 	} else if (side == RIGHT) {
-		Triangle& tr = v.getTriangleRight();
-		Triangle& tl = tr.getTriangleLeft();
-		Triangle& tll = tl.getTriangleLeft();
-		Triangle& trr = tr.getTriangleRight();
-		Triangle& tlc = tl.getTriangleCenter();
-		Triangle& trc = tr.getTriangleCenter();
+		Triangle::Label tr = v->getTriangleRight();
+		Triangle::Label tl = tr->getTriangleLeft();
+		Triangle::Label tll = tl->getTriangleLeft();
+		Triangle::Label trr = tr->getTriangleRight();
+		Triangle::Label tlc = tl->getTriangleCenter();
+		Triangle::Label trc = tr->getTriangleCenter();
 
-		Vertex& vr = tr.getVertexRight();
-		Vertex& vlu = tl.getVertexLeft();
-		Vertex& vru = tl.getVertexRight();
+		Vertex::Label vr = tr->getVertexRight();
+		Vertex::Label vlu = tl->getVertexLeft();
+		Vertex::Label vru = tl->getVertexRight();
 
 		trianglesAll.remove(tl);
 		trianglesAll.remove(tr);
-		triangles.destroy(tl);
-		triangles.destroy(tr);
+		Triangle::destroy(tl);
+		Triangle::destroy(tr);
 
-		Triangle& tln = triangles.create();
-		Triangle& trn = triangles.create();
+		Triangle::Label tln = Triangle::create();
+		Triangle::Label trn = Triangle::create();
 		trianglesAll.add(tln);
 		trianglesAll.add(trn);
 
-		tln.setVertices(v, vr, vlu);
-		trn.setVertices(vlu, vru, vr);
+		tln->setVertices(v, vr, vlu);
+		trn->setVertices(vlu, vru, vr);
 
-		tln.setTriangleLeft(tll);
-		tln.setTriangleRight(trn);
-		trn.setTriangleRight(trr);
-		tln.setTriangleCenter(trc);
-		trn.setTriangleCenter(tlc);
+		tln->setTriangleLeft(tll);
+		tln->setTriangleRight(trn);
+		trn->setTriangleRight(trr);
+		tln->setTriangleCenter(trc);
+		trn->setTriangleCenter(tlc);
 
 		updateVertexCoord(v, -1, 0);
 		updateVertexCoord(vr, 1, 0);
@@ -218,19 +222,20 @@ void Universe::flipLink(Vertex& v, flipSide side) {
 	}
 }
 
-void Universe::updateVertexCoord(Vertex &v, int up, int down) {
-	if(v.nUp + v.nDown == 4)  // Since up != 0 or down != 0, no need to check if contains
+void Universe::updateVertexCoord(Vertex::Label v, int up, int down) {
+	if(v->nUp + v->nDown == 4)  // Since up != 0 or down != 0, no need to check if contains
 		verticesFour.remove(v);
 
-	if ((v.nUp > 2) && (v.nUp + up == 2))
+	if ((v->nUp > 2) && (v->nUp + up == 2))
 		verticesPlus.remove(v);
 
-	if ((up > 0) && (v.nUp == 2))  // If nUp == 2, then up >= 0
+	if ((up > 0) && (v->nUp == 2))  // If nUp == 2, then up >= 0
 		verticesPlus.add(v);
 
-	v.changeCoord(up, down);
+	v->changeCoord(up, down);
 
-	if (v.nUp + v.nDown == 4)  // Since up != 0 or down !=, no need to check if does not contain
+	if (v->nUp + v->nDown == 4)  // Since up != 0 or down !=, no need to check if does not contain
 		verticesFour.add(v);
+		
 }
-*/
+

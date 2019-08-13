@@ -7,13 +7,13 @@ all: main.x
 
 main.x: main.o vertex.o triangle.o universe.o
 
-main.o: main.cpp pool.hpp vertex.hpp triangle.hpp universe.hpp
+main.o: main.cpp pool.hpp bag.hpp vertex.hpp triangle.hpp universe.hpp
 
 vertex.o: vertex.hpp pool.hpp triangle.hpp
 
 triangle.o: triangle.hpp pool.hpp vertex.hpp
 
-universe.o: universe.hpp vertex.hpp triangle.hpp
+universe.o: universe.hpp pool.hpp bag.hpp vertex.hpp triangle.hpp
 
 %.x: %.o
 	$(CXX) $(LDFLAGS) $(LDLIBS) -o $@ $^
