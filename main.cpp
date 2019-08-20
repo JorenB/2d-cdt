@@ -7,11 +7,17 @@
 #include "triangle.hpp"
 #include "universe.hpp"
 #include "simulation.hpp"
+#include "observable.hpp"
+#include "observables/volume.hpp"
 
 int main(int argc, const char * argv[]) {
 	Universe::create(3);
 
-	Simulation::start(50000, 10000, 0.699);
+	Volume o1;
+	Simulation::addObservable(o1);
+
+	Simulation::start(100, 100000, 0.699);
+
 
 	return 0;
 }

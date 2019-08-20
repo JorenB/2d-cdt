@@ -237,3 +237,26 @@ void Universe::updateVertexCoord(Vertex::Label v, int up, int down) {
 		
 }
 
+
+void Universe::check() {
+	for (auto t : trianglesAll) {
+		assert(t->getTriangleLeft() >= 0);
+		assert(t->getTriangleRight() >= 0);
+		assert(t->getTriangleCenter() >= 0);
+
+		assert(t->getVertexLeft() >= 0);
+		assert(t->getVertexRight() >= 0);
+		assert(t->getVertexCenter() >= 0);
+		
+		auto v = t->getVertexLeft();
+
+		if (v->nUp > 2) assert(Universe::verticesPlus.contains(v));
+		else {
+			assert(v->nUp == 2);
+			assert(!Universe::verticesPlus.contains(v));
+		}
+
+		if (v->nUp + v->nDown == 4) assert(Universe::verticesFour.contains(v));
+		else assert(!Universe::verticesFour.contains(v));
+	}
+}

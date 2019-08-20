@@ -33,6 +33,8 @@ public:
 	
 	// bag consistency
 	static void updateVertexCoord(Vertex::Label v, int up, int down);
+
+	static void check();
 	
 
 private:

@@ -1,19 +1,25 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
 #include "simulation.hpp"
+#include "observables/volume.hpp"
 
 std::default_random_engine Simulation::rng(0);  // TODO: seed properly
 int Simulation::sweepSize = 0;
 double Simulation::lambda = 0;
 double Simulation::gsq = 0;
+std::vector<Observable*> Simulation::observables;
 
 void Simulation::start(int sweeps, int sweepSize_, double lambda_) {
 	sweepSize = sweepSize_;
 	lambda = lambda_;
 	gsq = exp(-2.0*lambda);
 
+
 	for (unsigned int i = 0; i < sweeps; i++) {
 		sweep();
 		printf("sweep %d\n", i);
+		for (auto o : observables) {
+			o->measure();
+		}
 	}
 
 }
@@ -23,6 +29,7 @@ void Simulation::sweep() {
 
 	int move;
 	for (unsigned int i = 0; i < sweepSize; i++) {
+		Universe::check();
 		move = uniform_int(rng);
 		switch (move) {
 			case 0:
@@ -86,70 +93,31 @@ bool Simulation::moveFlip() {
 	Vertex::Label v = Universe::verticesPlus.pick();
 	std::bernoulli_distribution bernoulli(0.5);
 	Universe::flipSide side;
-	if (bernoulli(rng))
+	int wa = Universe::verticesPlus.size();
+	int wb = wa;
+	if (bernoulli(rng)) {
 		side = Universe::flipSide::LEFT;
-	else
+		wb = v->getTriangleLeft()->getVertexLeft()->nUp == 2 ? wb + 1 : wb;
+	}
+	else {
 		side = Universe::flipSide::RIGHT;
+		wb = v->getTriangleRight()->getVertexRight()->nUp == 2 ? wb + 1 : wb;
+	}
+
+	if (v->nUp == 3)
+		wb -= 1;
+
+	double ar = 1.0*wa/wb;
+
+	if (ar < 1.0) { 
+		std::uniform_real_distribution<> uniform(0.0, 1.0);
+		double r = uniform(rng);
+		if (r > ar) return false;
+	}
 
 	Universe::flipLink(v, side);
 
+	assert(wb == Universe::verticesPlus.size());
+
 	return true;
 }
-/*void Simulation::start(int totalSweeps) {
-	std::uniform_int_distribution<> uniform_int(0, 3);
-	for (auto o : observables) {
-		o->clear();
-	}
-
-	int move;
-	int sweeps = 0;
-	double bias = 0;
-	long unsigned int accepted = 0;
-	for (long unsigned int i = 0; true; i++) {
-		move = uniform_int(rng);
-		switch (move) {
-			case 0:
-				if (moveAdd()) accepted++;
-				break;
-			case 1:
-				if (moveDelete()) accepted++;
-				break;
-			case 2:
-			case 3:
-				if (moveFlip()) accepted++;
-				break;
-		}
-		if (i%sweepSize == 0) {
-			printf("sweep %d\n", sweeps);
-			printf("torus %d\n", u->nSlices);
-			printf("ar: %f, a: %lu, i: %lu\n", (double) accepted/ (double) i, accepted, i);
-			for (auto v : u->vertices.elements) {
-				v.neighborsFresh = false;
-			}
-			if (startMeasurements) {
-				for (auto o : observables) {
-					o->measure();
-				}
-			}
-			sweeps++;
-			if (sweeps >= totalSweeps) break;
-			if (sweeps >= 150 && lambda > 0.69) startMeasurements = true; // TODO: more intelligent solution
-		}
-
-		bias += (double) u->vertices.size() - (double) targetSize;
-
-		if (i % tuneLambdaSteps == 0) {
-			bias *= 1.0*1.0/(double) tuneLambdaSteps/(double) targetSize;
-
-
-			printf("n0: %d\n", u->vertices.size());
-			printf("n0_four: %d\n", u->verticesFour.size());
-			printf("bias: %f\n", bias);
-			printf("lambda: %f\n", lambda);
-
-			bias = 0;
-		}
-	}
-}*/
-
-/**/
