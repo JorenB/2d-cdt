@@ -84,3 +84,59 @@ std::vector<Triangle::Label> Observable::sphereDual(Triangle::Label origin, int 
     return triangleList;
 
 }
+
+int Observable::distance(Vertex::Label v1, Vertex::Label v2) {
+    if(v1 == v2) return 0;
+
+    std::vector<Vertex::Label> done;
+    std::vector<Vertex::Label> thisDepth;
+    std::vector<Vertex::Label> nextDepth;
+
+    done.push_back(v1);
+    thisDepth.push_back(v1);
+
+    int currentDepth = 0;
+    while(true) {
+        for(auto v : thisDepth) {
+            for(auto neighbor : Universe::vertexNeighbors[v]) {
+                if(neighbor == v2) return currentDepth+1;
+
+                if(std::find(done.begin(), done.end(), neighbor) == done.end()) {
+                    nextDepth.push_back(neighbor);
+                    done.push_back(neighbor);
+                }
+            }
+        }
+        thisDepth = nextDepth;
+        nextDepth.clear();
+        currentDepth++;
+    }
+}
+
+int Observable::distanceDual(Triangle::Label t1, Triangle::Label t2) {
+    if(t1 == t2) return 0;
+
+    std::vector<Triangle::Label> done;
+    std::vector<Triangle::Label> thisDepth;
+    std::vector<Triangle::Label> nextDepth;
+
+    done.push_back(t1);
+    thisDepth.push_back(t1);
+
+    int currentDepth = 0;
+    while(true) {
+        for(auto t : thisDepth) {
+            for(auto neighbor : Universe::triangleNeighbors[t]) {
+                if(neighbor == t2) return currentDepth+1;
+
+                if(std::find(done.begin(), done.end(), neighbor) == done.end()) {
+                    nextDepth.push_back(neighbor);
+                    done.push_back(neighbor);
+                }
+            }
+        }
+        thisDepth = nextDepth;
+        nextDepth.clear();
+        currentDepth++;
+    }
+}

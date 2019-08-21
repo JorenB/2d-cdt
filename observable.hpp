@@ -31,8 +31,11 @@ protected:
 	void write();
 
 	// toolbox
-	std::vector<Vertex::Label> sphere(Vertex::Label origin, int radius);
-	std::vector<Triangle::Label> sphereDual(Triangle::Label origin, int radius);
+	static std::vector<Vertex::Label> sphere(Vertex::Label origin, int radius);
+	static std::vector<Triangle::Label> sphereDual(Triangle::Label origin, int radius);
+
+	static int distance(Vertex::Label v1, Vertex::Label v2);
+	static int distanceDual(Triangle::Label t1, Triangle::Label t2);
 
 	std::string data_dir = "out/";
 	std::string extension = ".dat";
