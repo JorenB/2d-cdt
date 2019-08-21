@@ -15,6 +15,7 @@ void Simulation::start(int sweeps, int sweepSize_, double lambda_) {
 
 	gsq = 0.25;
 
+	prepare();
 	for (unsigned int i = 0; i < sweeps; i++) {
 		sweep();
 		printf("sweep %d\n", i);
