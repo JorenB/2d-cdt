@@ -37,6 +37,15 @@ protected:
 	static int distance(Vertex::Label v1, Vertex::Label v2);
 	static int distanceDual(Triangle::Label t1, Triangle::Label t2);
 
+	static Vertex::Label randomVertex() {
+		std::uniform_int_distribution<> rv(0, Universe::vertices.size());
+		return Universe::vertices[rv(rng)];
+	}
+	static Triangle::Label randomTriangle() {
+		std::uniform_int_distribution<> rt(0, Universe::triangles.size());
+		return Universe::triangles[rt(rng)];
+	}
+
 	std::string data_dir = "out/";
 	std::string extension = ".dat";
 	std::string output;
