@@ -25,9 +25,14 @@ private:
 	std::string identifier;
 
 protected:
+	static std::default_random_engine rng;
 	virtual void process() = 0;
 
 	void write();
+
+	// toolbox
+	std::vector<Vertex::Label> sphere(Vertex::Label origin, int radius);
+	std::vector<Triangle::Label> sphereDual(Triangle::Label origin, int radius);
 
 	std::string data_dir = "out/";
 	std::string extension = ".dat";

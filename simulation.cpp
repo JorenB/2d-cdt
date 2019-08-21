@@ -13,6 +13,7 @@ void Simulation::start(int sweeps, int sweepSize_, double lambda_) {
 	lambda = lambda_;
 	gsq = exp(-2.0*lambda);
 
+	gsq = 0.25;
 
 	for (unsigned int i = 0; i < sweeps; i++) {
 		sweep();
@@ -127,14 +128,14 @@ void Simulation::prepare() {
 	Universe::updateTriangleData();
 
 	/*for (auto t : Universe::triangles) {
-		printf("t: %d\n", (int) t);
+		printf("t: %d, %c, t=%d\n", (int) t, t->isUpwards() ? 'u' : 'd', t->time);
 		for (auto tn : Universe::triangleNeighbors[t]) {
 			printf("\ttn: %d\n", (int) tn);
 		}
 	}
 	printf("tsize: %d\n", (int) Universe::triangles.size());
 	for (auto v : Universe::vertices) {
-		printf("v: %d\n", (int) v);
+		printf("v: %d, tl: %d, tr: %d, nUp: %d, nDown: %d\n", (int) v, (int) v->getTriangleLeft(), (int) v->getTriangleRight(), v->nUp, v->nDown);
 		for (auto vn : Universe::vertexNeighbors[v]) {
 			printf("\tvn: %d\n", (int) vn);
 		}
