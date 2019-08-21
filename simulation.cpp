@@ -17,6 +17,7 @@ void Simulation::start(int sweeps, int sweepSize_, double lambda_) {
 	for (unsigned int i = 0; i < sweeps; i++) {
 		sweep();
 		printf("sweep %d\n", i);
+		prepare();
 		for (auto o : observables) {
 			o->measure();
 		}
@@ -29,7 +30,6 @@ void Simulation::sweep() {
 
 	int move;
 	for (unsigned int i = 0; i < sweepSize; i++) {
-		Universe::check();
 		move = uniform_int(rng);
 		switch (move) {
 			case 0:
@@ -120,4 +120,24 @@ bool Simulation::moveFlip() {
 	assert(wb == Universe::verticesPlus.size());
 
 	return true;
+}
+
+void Simulation::prepare() {
+	Universe::updateVertexData();
+	Universe::updateTriangleData();
+
+	/*for (auto t : Universe::triangles) {
+		printf("t: %d\n", (int) t);
+		for (auto tn : Universe::triangleNeighbors[t]) {
+			printf("\ttn: %d\n", (int) tn);
+		}
+	}
+	printf("tsize: %d\n", (int) Universe::triangles.size());
+	for (auto v : Universe::vertices) {
+		printf("v: %d\n", (int) v);
+		for (auto vn : Universe::vertexNeighbors[v]) {
+			printf("\tvn: %d\n", (int) vn);
+		}
+	}
+	printf("vsize: %d\n", (int) Universe::vertices.size());*/
 }

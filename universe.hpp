@@ -36,6 +36,13 @@ public:
 
 	static void check();
 	
+	static void updateVertexData();
+	static void updateTriangleData();
+
+	static std::vector<Vertex::Label> vertices;
+	static std::vector<Triangle::Label> triangles;
+	static std::vector<std::vector<Vertex::Label>> vertexNeighbors;
+	static std::vector<std::vector<Triangle::Label>> triangleNeighbors;
 
 private:
 	Universe() {}

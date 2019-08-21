@@ -8,6 +8,11 @@ Bag<Triangle, Triangle::pool_size> Universe::trianglesAll(rng);
 Bag<Vertex, Vertex::pool_size> Universe::verticesFour(rng);
 Bag<Vertex, Vertex::pool_size> Universe::verticesPlus(rng);
 
+std::vector<Vertex::Label> Universe::vertices;
+std::vector<Triangle::Label> Universe::triangles;
+std::vector<std::vector<Vertex::Label>> Universe::vertexNeighbors;
+std::vector<std::vector<Triangle::Label>> Universe::triangleNeighbors;
+
 void Universe::create(int nSlices_) {
 	nSlices = nSlices_;
 	initialize();
@@ -259,4 +264,55 @@ void Universe::check() {
 		if (v->nUp + v->nDown == 4) assert(Universe::verticesFour.contains(v));
 		else assert(!Universe::verticesFour.contains(v));
 	}
+}
+
+void Universe::updateVertexData() {
+	vertices.clear();
+	int max = 0;
+	for (auto t : trianglesAll) {
+		if (t->isUpwards()) {
+			auto v = t->getVertexLeft();
+			vertices.push_back(v);
+			if (v > max) max = v;
+		}
+	}
+
+	vertexNeighbors.clear();
+	vertexNeighbors.resize(max+1);
+	for (auto v : vertices) {
+		auto tl = v->getTriangleLeft();
+		Triangle::Label tn = tl;
+		do {
+			vertexNeighbors[v].push_back(tn->getVertexLeft());
+			tn = tn->getTriangleRight();
+		} while (tn->isDownwards());
+		vertexNeighbors[v].push_back(tn->getVertexCenter());
+		vertexNeighbors[v].push_back(tn->getVertexRight());
+
+		tn = tn->getTriangleCenter()->getTriangleLeft();
+		while (tn->isUpwards()) {
+			vertexNeighbors[v].push_back(tn->getVertexRight());
+			tn = tn->getTriangleLeft();
+		}
+		vertexNeighbors[v].push_back(tn->getVertexCenter());
+
+
+	}
+}
+
+void Universe::updateTriangleData() {
+	triangles.clear();
+	int max = 0;
+	for (auto t : trianglesAll) {
+		triangles.push_back(t);
+
+		if (t > max) max = t;
+	}
+
+	triangleNeighbors.clear();
+	triangleNeighbors.resize(max+1);
+	for (auto t : trianglesAll) {
+		triangleNeighbors[t] = {t->getTriangleLeft(), t->getTriangleRight(), t->getTriangleCenter()};
+	}
+
 }

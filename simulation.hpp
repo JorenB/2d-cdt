@@ -28,5 +28,7 @@ private:
 	static bool moveAdd();
 	static bool moveDelete();
 	static bool moveFlip();
+
+	static void prepare();
 };
 #endif  // SIMULATION_HPP_
