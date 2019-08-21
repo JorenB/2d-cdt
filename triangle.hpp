@@ -92,16 +92,16 @@ private:
 	Pool<Vertex>::Label vl, vr, vc;
 	
 	void updateType() {
-		if (vl->time > vc->time) {
+		if (vl->time < vc->time) {
 			type = UP;
 		} else {
 			type = DOWN;
 		}
 
-		if (vl->time == 0 && vc->time > 1) {
+		if (vc->time == 0 && vl->time > 1) {
 			type = UP;
 		}
-		if (vc->time == 0 && vl->time > 1) {
+		if (vl->time == 0 && vc->time > 1) {
 			type = DOWN;
 		}
 	}
