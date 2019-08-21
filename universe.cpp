@@ -19,7 +19,7 @@ void Universe::create(int nSlices_) {
 }
 
 void Universe::initialize() {
-	int w = 3;  // width of the initial strip. Can be adjusted for thermalization purposes - unclear what the 'optimal' value is.
+	int w = 100;  // width of the initial strip. Can be adjusted for thermalization purposes - unclear what the 'optimal' value is.
 	int t = nSlices;
 
 	std::vector<Vertex::Label> initialVertices(w*t);
@@ -283,18 +283,18 @@ void Universe::updateVertexData() {
 		auto tl = v->getTriangleLeft();
 		Triangle::Label tn = tl;
 		do {
-			vertexNeighbors[v].push_back(tn->getVertexLeft());
+			vertexNeighbors.at(v).push_back(tn->getVertexLeft());
 			tn = tn->getTriangleRight();
 		} while (tn->isDownwards());
-		vertexNeighbors[v].push_back(tn->getVertexCenter());
-		vertexNeighbors[v].push_back(tn->getVertexRight());
+		vertexNeighbors.at(v).push_back(tn->getVertexCenter());
+		vertexNeighbors.at(v).push_back(tn->getVertexRight());
 
 		tn = tn->getTriangleCenter()->getTriangleLeft();
 		while (tn->isUpwards()) {
-			vertexNeighbors[v].push_back(tn->getVertexRight());
+			vertexNeighbors.at(v).push_back(tn->getVertexRight());
 			tn = tn->getTriangleLeft();
 		}
-		vertexNeighbors[v].push_back(tn->getVertexCenter());
+		vertexNeighbors.at(v).push_back(tn->getVertexCenter());
 
 
 	}
@@ -312,7 +312,7 @@ void Universe::updateTriangleData() {
 	triangleNeighbors.clear();
 	triangleNeighbors.resize(max+1);
 	for (auto t : trianglesAll) {
-		triangleNeighbors[t] = {t->getTriangleLeft(), t->getTriangleRight(), t->getTriangleCenter()};
+		triangleNeighbors.at(t) = {t->getTriangleLeft(), t->getTriangleRight(), t->getTriangleCenter()};
 	}
 
 }

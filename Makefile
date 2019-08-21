@@ -5,7 +5,7 @@ CXXFLAGS = -std=c++14 -O2 -Wall
 
 all: main.x
 
-main.x: main.o vertex.o triangle.o universe.o simulation.o observable.o observables/volume.o observables/hausdorff.o observables/volume_profile.o observables/hausdorff_dual.o
+main.x: main.o vertex.o triangle.o universe.o simulation.o observable.o observables/volume.o observables/hausdorff.o observables/volume_profile.o observables/hausdorff_dual.o 
 
 #main.o: main.cpp pool.hpp bag.hpp vertex.hpp triangle.hpp universe.hpp simulation.hpp observable.hpp
 main.o: main.cpp pool.hpp bag.hpp 
@@ -27,6 +27,7 @@ observables/hausdorff.o: observables/hausdorff.hpp observable.hpp
 observables/hausdorff_dual.o: observables/hausdorff_dual.hpp observable.hpp
 
 observables/volume_profile.o: observables/volume_profile.hpp observable.hpp
+
 
 %.x: %.o
 	$(CXX) $(LDFLAGS) $(LDLIBS) -o $@ $^

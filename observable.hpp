@@ -38,12 +38,12 @@ protected:
 	static int distanceDual(Triangle::Label t1, Triangle::Label t2);
 
 	static Vertex::Label randomVertex() {
-		std::uniform_int_distribution<> rv(0, Universe::vertices.size());
-		return Universe::vertices[rv(rng)];
+		std::uniform_int_distribution<> rv(0, Universe::vertices.size()-1);
+		return Universe::vertices.at(rv(rng));
 	}
 	static Triangle::Label randomTriangle() {
-		std::uniform_int_distribution<> rt(0, Universe::triangles.size());
-		return Universe::triangles[rt(rng)];
+		std::uniform_int_distribution<> rt(0, Universe::triangles.size()-1);
+		return Universe::triangles.at(rt(rng));
 	}
 
 	std::string data_dir = "out/";

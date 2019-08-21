@@ -14,7 +14,7 @@
 #include "observables/hausdorff_dual.hpp"
 
 int main(int argc, const char * argv[]) {
-	Universe::create(400);
+	Universe::create(100);
 
 	Hausdorff o1;
 	Simulation::addObservable(o1);
@@ -23,9 +23,8 @@ int main(int argc, const char * argv[]) {
 	HausdorffDual o3;
 	Simulation::addObservable(o3);
 
+	Simulation::start(10, 1000000, 0.699);
 
-	Simulation::start(50000, 1000000, 0.699);
-
-
+	
 	return 0;
 }
