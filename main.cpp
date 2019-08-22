@@ -25,6 +25,5 @@ int main(int argc, const char * argv[]) {
 
 	Simulation::start(10, 1000000, 0.699);
 
-	
 	return 0;
 }

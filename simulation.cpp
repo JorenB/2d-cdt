@@ -3,20 +3,31 @@
 #include "observables/volume.hpp"
 
 std::default_random_engine Simulation::rng(0);  // TODO: seed properly
+int Simulation::targetVolume = 0;
 int Simulation::sweepSize = 0;
 double Simulation::lambda = 0;
 double Simulation::gsq = 0;
 std::vector<Observable*> Simulation::observables;
 
-void Simulation::start(int sweeps, int sweepSize_, double lambda_) {
+void Simulation::start(int sweeps, int sweepSize_, double lambda_, int targetVolume_) {
 	sweepSize = sweepSize_;
 	lambda = lambda_;
 	gsq = exp(-2.0*lambda);
+	targetVolume = targetVolume_;
 
 	gsq = 0.25;
 
 	prepare();
-	for (unsigned int i = 0; i < sweeps; i++) {
+	printf("thermalizing");
+	fflush(stdout);
+	for (int i = 0; i < 50; i++) {
+		sweep();
+		printf(".");
+		fflush(stdout);
+	}
+	printf("\n");
+
+	for (int i = 0; i < sweeps; i++) {
 		sweep();
 		printf("sweep %d\n", i);
 		prepare();
@@ -31,7 +42,7 @@ void Simulation::sweep() {
 	std::uniform_int_distribution<> uniform_int(0, 3);
 
 	int move;
-	for (unsigned int i = 0; i < sweepSize; i++) {
+	for (int i = 0; i < sweepSize; i++) {
 		move = uniform_int(rng);
 		switch (move) {
 			case 0:
@@ -54,6 +65,7 @@ bool Simulation::moveAdd() {
 	double n0_four = Universe::verticesFour.size();
 
 	double ar = n2 / (2.0*(n0_four + 1.0)) * gsq;
+	if (targetVolume > 0) ar *= exp(-epsilon*(1-(targetVolume-n2)));
 
 	Triangle::Label t = Universe::trianglesAll.pick();
 
@@ -74,6 +86,7 @@ bool Simulation::moveDelete() {
 	double n0_four = Universe::verticesFour.size();
 
 	double ar = n0_four*2.0/(gsq * (n2-2.0));
+	if (targetVolume > 0) ar *= exp(epsilon * (1-(targetVolume-n2)));
 
 	Vertex::Label v = Universe::verticesFour.pick();
 	if (Universe::sliceSizes[v->time] < 4) return false;  // reject moves that shrink slices below size 3

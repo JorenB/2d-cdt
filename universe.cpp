@@ -19,7 +19,7 @@ void Universe::create(int nSlices_) {
 }
 
 void Universe::initialize() {
-	int w = 100;  // width of the initial strip. Can be adjusted for thermalization purposes - unclear what the 'optimal' value is.
+	int w = 3;  // width of the initial strip. Can be adjusted for thermalization purposes - unclear what the 'optimal' value is.
 	int t = nSlices;
 
 	std::vector<Vertex::Label> initialVertices(w*t);

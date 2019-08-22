@@ -12,7 +12,7 @@ public:
 	static double lambda;
 	static double gsq;
 
-	static void start(int sweeps, int sweepSize_, double lambda_);
+	static void start(int sweeps, int sweepSize_, double lambda_, int targetVolume_ = 0);
 
 	static void addObservable(Observable& o) {
 		observables.push_back(&o);
@@ -20,6 +20,9 @@ public:
 
 private:
 	static std::default_random_engine rng;
+
+	static int targetVolume;
+	static double constexpr epsilon = 0.004;
 
 	static std::vector<Observable*> observables;
 

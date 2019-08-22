@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <string>
+#include <algorithm>
 #include "universe.hpp"
 
 class Observable {
