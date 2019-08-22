@@ -17,6 +17,10 @@ void Simulation::start(int sweeps, int sweepSize_, double lambda_, int targetVol
 
 	gsq = 0.25;
 
+	for (auto o : observables) {
+		o->clear();
+	}
+
 	prepare();
 	printf("thermalizing");
 	fflush(stdout);

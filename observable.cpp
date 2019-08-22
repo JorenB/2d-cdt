@@ -7,6 +7,10 @@ std::default_random_engine Observable::rng(0);  // TODO: seed properly
 void Observable::write() {
     std::string filename = data_dir + name + "-" + identifier + extension;
 
+	std::ifstream infile(filename);
+	if (!infile.good()) { printf("output file deleted\n"); exit(1); }
+	infile.close();
+
     std::ofstream file;
     file.open(filename, std::ios::out | std::ios::app);
 
@@ -19,7 +23,7 @@ void Observable::write() {
 }
 
 void Observable::clear() {
-    std::string filename = data_dir + name + extension;
+    std::string filename = data_dir + name + "-" + identifier + extension;
 
     std::ofstream file;
     file.open(filename, std::ios::out | std::ios::trunc);
