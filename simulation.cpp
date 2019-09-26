@@ -21,16 +21,10 @@ void Simulation::start(int sweeps, int sweepSize_, double lambda_, int targetVol
 	for (auto o : observables) {
 		o->clear();
 	}
+	
+	grow();
 
-	prepare();
-	printf("thermalizing");
-	fflush(stdout);
-	for (int i = 0; i < 50; i++) {
-		sweep();
-		printf(".");
-		fflush(stdout);
-	}
-	printf("\n");
+	thermalize();
 
 	measuring = true;
 
@@ -77,7 +71,7 @@ bool Simulation::moveAdd() {
 	double n0_four = Universe::verticesFour.size();
 
 	double ar = n2 / (2.0*(n0_four + 1.0)) * gsq;
-	if (targetVolume > 0) ar *= exp(-epsilon*(1-(targetVolume-n2)));
+	if (targetVolume > 0) ar *= exp(epsilon * (targetVolume-n2));
 
 	Triangle::Label t = Universe::trianglesAll.pick();
 
@@ -98,7 +92,7 @@ bool Simulation::moveDelete() {
 	double n0_four = Universe::verticesFour.size();
 
 	double ar = n0_four*2.0/(gsq * (n2-2.0));
-	if (targetVolume > 0) ar *= exp(epsilon * (1-(targetVolume-n2)));
+	if (targetVolume > 0) ar *= exp(-epsilon * (targetVolume-n2));
 
 	Vertex::Label v = Universe::verticesFour.pick();
 	if (Universe::sliceSizes[v->time] < 4) return false;  // reject moves that shrink slices below size 3
@@ -152,19 +146,44 @@ bool Simulation::moveFlip() {
 void Simulation::prepare() {
 	Universe::updateVertexData();
 	Universe::updateTriangleData();
+}
 
-	/*for (auto t : Universe::triangles) {
-		printf("t: %d, %c, t=%d\n", (int) t, t->isUpwards() ? 'u' : 'd', t->time);
-		for (auto tn : Universe::triangleNeighbors[t]) {
-			printf("\ttn: %d\n", (int) tn);
+void Simulation::grow() {
+	int growSteps = 0;
+	printf("growing");
+	do {
+		sweep();
+		printf(".");
+		fflush(stdout);
+		growSteps++;
+	} while (Triangle::size() < targetVolume);
+	printf("\n");
+	printf("grown in %d sweeps\n", growSteps);
+}
+
+void Simulation::thermalize() {
+	int thermSteps = 0;
+	printf("thermalizing");
+	fflush(stdout);
+	//for (int i = 0; i < 50; i++) {
+	double coordBound = log(2*targetVolume)/(double)log(2);
+	int maxUp, maxDown;
+	do {
+		sweep();
+		printf(".");
+		fflush(stdout);
+
+		prepare();
+		maxUp = 0;
+		maxDown = 0;
+		for (auto v : Universe::vertices) {
+			if (v->nUp > maxUp) maxUp = v->nUp;
+			if (v->nDown > maxDown) maxDown = v->nDown;
 		}
-	}
-	printf("tsize: %d\n", (int) Universe::triangles.size());
-	for (auto v : Universe::vertices) {
-		printf("v: %d, tl: %d, tr: %d, nUp: %d, nDown: %d\n", (int) v, (int) v->getTriangleLeft(), (int) v->getTriangleRight(), v->nUp, v->nDown);
-		for (auto vn : Universe::vertexNeighbors[v]) {
-			printf("\tvn: %d\n", (int) vn);
-		}
-	}
-	printf("vsize: %d\n", (int) Universe::vertices.size());*/
+		//printf("up: %d, down %d, bound: %f\n", maxUp, maxDown, coordBound);
+
+		thermSteps++;
+	} while (maxUp > coordBound || maxDown > coordBound);
+	printf("\n");
+	printf("thermalized in %d sweeps\n", thermSteps);
 }

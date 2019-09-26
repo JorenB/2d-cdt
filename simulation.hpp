@@ -22,7 +22,7 @@ private:
 	static std::default_random_engine rng;
 
 	static int targetVolume;
-	static double constexpr epsilon = 0.004;
+	static double constexpr epsilon = 0.0001;
 	static bool measuring;
 
 	static std::vector<Observable*> observables;
@@ -34,5 +34,8 @@ private:
 	static bool moveFlip();
 
 	static void prepare();
+
+	static void grow();
+	static void thermalize();
 };
 #endif  // SIMULATION_HPP_
