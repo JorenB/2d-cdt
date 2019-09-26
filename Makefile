@@ -3,11 +3,13 @@ CXXFLAGS = -std=c++14 -O2 -Wall
 
 .PHONY: all clean
 
+vpath %.cpp observables
+vpath %.hpp observables
+
 all: main.x
 
-main.x: main.o vertex.o triangle.o universe.o simulation.o observable.o observables/volume.o observables/hausdorff.o observables/volume_profile.o observables/hausdorff_dual.o 
+main.x: main.o vertex.o triangle.o universe.o simulation.o observable.o volume.o hausdorff.o volume_profile.o hausdorff_dual.o 
 
-#main.o: main.cpp pool.hpp bag.hpp vertex.hpp triangle.hpp universe.hpp simulation.hpp observable.hpp
 main.o: main.cpp pool.hpp bag.hpp 
 
 vertex.o: vertex.hpp pool.hpp triangle.hpp
@@ -20,13 +22,13 @@ simulation.o: simulation.hpp universe.hpp pool.hpp bag.hpp vertex.hpp triangle.h
 
 observable.o: observable.hpp simulation.hpp universe.hpp
 
-observables/volume.o: observables/volume.hpp observable.hpp
+volume.o: observables/volume.hpp observable.hpp
 
-observables/hausdorff.o: observables/hausdorff.hpp observable.hpp
+hausdorff.o: observables/hausdorff.hpp observable.hpp
 
-observables/hausdorff_dual.o: observables/hausdorff_dual.hpp observable.hpp
+hausdorff_dual.o: observables/hausdorff_dual.hpp observable.hpp
 
-observables/volume_profile.o: observables/volume_profile.hpp observable.hpp
+volume_profile.o: observables/volume_profile.hpp observable.hpp
 
 
 %.x: %.o
