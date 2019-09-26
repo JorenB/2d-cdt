@@ -7,6 +7,7 @@ int Simulation::targetVolume = 0;
 int Simulation::sweepSize = 0;
 double Simulation::lambda = 0;
 double Simulation::gsq = 0;
+bool Simulation::measuring = false;
 std::vector<Observable*> Simulation::observables;
 
 void Simulation::start(int sweeps, int sweepSize_, double lambda_, int targetVolume_) {
@@ -31,19 +32,19 @@ void Simulation::start(int sweeps, int sweepSize_, double lambda_, int targetVol
 	}
 	printf("\n");
 
+	measuring = true;
+
 	for (int i = 0; i < sweeps; i++) {
 		sweep();
 		printf("sweep %d\n", i);
-		prepare();
-		for (auto o : observables) {
-			o->measure();
-		}
+		printf("vol: %d\n", Triangle::size());
 	}
 
 }
 
 void Simulation::sweep() {
 	std::uniform_int_distribution<> uniform_int(0, 3);
+	bool measured = false;
 
 	int move;
 	for (int i = 0; i < sweepSize; i++) {
@@ -60,7 +61,14 @@ void Simulation::sweep() {
 				moveFlip();
 				break;
 		}
-
+		if (measuring && !measured) {
+			if (targetVolume > 0 && Triangle::size() != targetVolume) continue;
+			prepare();
+			for (auto o : observables) {
+				o->measure();
+			}
+			measured = true;
+		}
 	}
 }
 

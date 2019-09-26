@@ -23,6 +23,7 @@ private:
 
 	static int targetVolume;
 	static double constexpr epsilon = 0.004;
+	static bool measuring;
 
 	static std::vector<Observable*> observables;
 
