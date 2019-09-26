@@ -9,14 +9,17 @@
 #include "simulation.hpp"
 #include "observable.hpp"
 #include "observables/volume_profile.hpp"
+#include "observables/coord.hpp"
 
 int main(int argc, const char * argv[]) {
-	Universe::create(120);
+	Universe::create(200);
 
 	VolumeProfile vp;
 	Simulation::addObservable(vp);
+	Coord coord;
+	Simulation::addObservable(coord);
 
-	Simulation::start(10, 100000, 0.699, 300*120);
+	Simulation::start(100, 1000000, 0.699, 250*250);
 
 	return 0;
 }

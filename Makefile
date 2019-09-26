@@ -8,7 +8,7 @@ vpath %.hpp observables
 
 all: main.x
 
-main.x: main.o vertex.o triangle.o universe.o simulation.o observable.o volume.o hausdorff.o volume_profile.o hausdorff_dual.o 
+main.x: main.o vertex.o triangle.o universe.o simulation.o observable.o volume.o hausdorff.o volume_profile.o hausdorff_dual.o  coord.o
 
 main.o: main.cpp pool.hpp bag.hpp 
 
@@ -30,6 +30,8 @@ hausdorff_dual.o: observables/hausdorff_dual.hpp observable.hpp
 
 volume_profile.o: observables/volume_profile.hpp observable.hpp
 
+
+coord.o: observables/coord.hpp observable.hpp
 
 %.x: %.o
 	$(CXX) $(LDFLAGS) $(LDLIBS) -o $@ $^
