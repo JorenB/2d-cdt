@@ -146,25 +146,25 @@ bool Simulation::moveDelete() {
 }
 
 bool Simulation::moveFlip() {
-	if (Universe::verticesPlus.size() == 0) return false;
+	if (Universe::trianglesFlip.size() == 0) return false;
 
-	Vertex::Label v = Universe::verticesPlus.pick();
-	std::bernoulli_distribution bernoulli(0.5);
-	Universe::flipSide side;
-	int wa = Universe::verticesPlus.size();
+	auto t = Universe::trianglesFlip.pick();
+
+	int wa = Universe::trianglesFlip.size();
 	int wb = wa;
-	if (bernoulli(rng)) {
-		side = Universe::flipSide::LEFT;
-		wb = v->getTriangleLeft()->getVertexLeft()->nUp == 2 ? wb + 1 : wb;
+	if (t->type == t->getTriangleLeft()->type) {
+		wb++;
 	} else {
-		side = Universe::flipSide::RIGHT;
-		wb = v->getTriangleRight()->getVertexRight()->nUp == 2 ? wb + 1 : wb;
+		wb--;
 	}
 
-	if (v->nUp == 3)
-		wb -= 1;
+	if (t->getTriangleRight()->type == t->getTriangleRight()->getTriangleRight()->type) {
+	   	wb++;
+	} else {
+		wb--;
+	}
 
-	double ar = 1.0 * wa / wb;
+	double ar = 1.0*wa/wb;
 
 	if (ar < 1.0) {
 		std::uniform_real_distribution<> uniform(0.0, 1.0);
@@ -172,9 +172,7 @@ bool Simulation::moveFlip() {
 		if (r > ar) return false;
 	}
 
-	Universe::flipLink(v, side);
-
-	assert(wb == Universe::verticesPlus.size());
+	Universe::flipLink(t);
 
 	return true;
 }
@@ -256,8 +254,13 @@ void Simulation::thermalize() {
 		maxUp = 0;
 		maxDown = 0;
 		for (auto v : Universe::vertices) {
-			if (v->nUp > maxUp) maxUp = v->nUp;
-			if (v->nDown > maxDown) maxDown = v->nDown;
+			int nup = 0, ndown = 0;
+			for (auto vn : Universe::vertexNeighbors.at(v)) {
+				if (vn->time > v->time || (v->time == Universe::nSlices-1 && vn->time == 0)) nup++;
+				if (vn->time < v->time || (v->time == 0 && vn->time == Universe::nSlices-1)) ndown++;
+			}
+			if (nup > maxUp) maxUp = nup;
+			if (ndown > maxDown) maxDown = ndown;
 		}
 
 		thermSteps++;

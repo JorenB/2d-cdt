@@ -19,7 +19,8 @@ seed			$1
 fileID			$FID
 measurements	$MEASUREMENTS
 EOM
-srun -u main.x $FILE
+srun -u main.x $FILE # for running with slurm
+#./main.x $FILE # for running locally
 if [ $? -ne 0 ]
 then
 	exit 1

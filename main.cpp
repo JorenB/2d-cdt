@@ -43,7 +43,6 @@ int main(int argc, const char * argv[]) {
 	Hausdorff haus(fID);
 	Simulation::addObservable(haus);
 
-
 	printf("seed: %d\n", seed);
 
 	Simulation::start(measurements, lambda, targetVolume, seed);

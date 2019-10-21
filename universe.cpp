@@ -7,7 +7,7 @@ bool Universe::sphere = false;
 std::default_random_engine Universe::rng(0);  // TODO(JorenB): set seed somewhere else
 Bag<Triangle, Triangle::pool_size> Universe::trianglesAll(rng);
 Bag<Vertex, Vertex::pool_size> Universe::verticesFour(rng);
-Bag<Vertex, Vertex::pool_size> Universe::verticesPlus(rng);
+Bag<Triangle, Triangle::pool_size> Universe::trianglesFlip(rng);
 
 std::vector<Vertex::Label> Universe::vertices;
 std::vector<Triangle::Label> Universe::triangles;
@@ -28,9 +28,7 @@ void Universe::initialize() {
 	for (int i = 0; i < w*t; i++) {
 		auto v = Vertex::create();
 		v->time = i / w;
-		v->setCoord(3, 3);
 		initialVertices[i] = v;
-		verticesPlus.add(v);
 	}
 
 	for (int i = 0; i < t; i++) {
@@ -56,6 +54,9 @@ void Universe::initialize() {
 			initialTriangles[2*(i*w+j)+1] = tr;
 			trianglesAll.add(tl);
 			trianglesAll.add(tr);
+
+			trianglesFlip.add(tl);
+			trianglesFlip.add(tr);
 		}
 	}
 
@@ -88,7 +89,6 @@ void Universe::insertVertex(Triangle::Label t) {
 
 	Vertex::Label v = Vertex::create();
 	v->time = time;
-	v->setCoord(2, 2);
 	verticesFour.add(v);
 	sliceSizes[time] += 1;
 
@@ -106,12 +106,14 @@ void Universe::insertVertex(Triangle::Label t) {
 	t1->setTriangles(t, t->getTriangleRight(), t2);
 	t2->setTriangles(tc, tc->getTriangleRight(), t1);
 
-	if (t->isUpwards()) {
-		updateVertexCoord(t->getVertexCenter(), 0, 1);
-		updateVertexCoord(tc->getVertexCenter(), 1, 0);
-	} else if (t->isDownwards()) {
-		updateVertexCoord(t->getVertexCenter(), 1, 0);
-		updateVertexCoord(tc->getVertexCenter(), 0, 1);
+	if (t1->type != t1->getTriangleRight()->type) {
+		trianglesFlip.remove(t);
+		trianglesFlip.add(t1);
+	}
+
+	if (t2->type != t2->getTriangleRight()->type) {
+		trianglesFlip.remove(tc);
+		trianglesFlip.add(t2);
 	}
 }
 
@@ -136,112 +138,62 @@ void Universe::removeVertex(Vertex::Label v) {
 
 	trianglesAll.remove(tr);
 	trianglesAll.remove(trc);
+	if (trianglesFlip.contains(tr)) {
+		trianglesFlip.remove(tr);
+		trianglesFlip.add(tl);
+	}
+	if (trianglesFlip.contains(trc)) {
+		trianglesFlip.remove(trc);
+		trianglesFlip.add(tlc);
+	}
+
 	Triangle::destroy(tr);
 	Triangle::destroy(trc);
-
-	Vertex::Label vu = tl->getVertexCenter();
-	Vertex::Label vd = tlc->getVertexCenter();
-
-	updateVertexCoord(vu, 0, -1);
-	updateVertexCoord(vd, -1, 0);
 
 	verticesFour.remove(v);
 	Vertex::destroy(v);
 }
 
-void Universe::flipLink(Vertex::Label v, flipSide side) {
-	std::bernoulli_distribution d(0.5);
+void Universe::flipLink(Triangle::Label t) {
+	auto tr = t->getTriangleRight();
+	auto tc = t->getTriangleCenter();
+	auto trc = tr->getTriangleCenter();
 
-	// simplify and add check
-	if (side == LEFT) {
-		Triangle::Label tl = v->getTriangleLeft();
-		Triangle::Label tr = tl->getTriangleRight();
-		Triangle::Label tll = tl->getTriangleLeft();
-		Triangle::Label trr = tr->getTriangleRight();
-		Triangle::Label tlc = tl->getTriangleCenter();
-		Triangle::Label trc = tr->getTriangleCenter();
-
-		Vertex::Label vl = tl->getVertexLeft();
-		Vertex::Label vlu = tr->getVertexLeft();
-		Vertex::Label vru = tr->getVertexRight();
-
-		trianglesAll.remove(tl);
-		trianglesAll.remove(tr);
-		Triangle::destroy(tl);
-		Triangle::destroy(tr);
-
-		Triangle::Label tln = Triangle::create();
-		Triangle::Label trn = Triangle::create();
-		trianglesAll.add(tln);
-		trianglesAll.add(trn);
-
-		tln->setVertices(vlu, vru, vl);
-		trn->setVertices(vl, v, vru);
-
-		tln->setTriangleLeft(tll);
-		tln->setTriangleRight(trn);
-		trn->setTriangleRight(trr);
-		tln->setTriangleCenter(trc);
-		trn->setTriangleCenter(tlc);
-
-		updateVertexCoord(v, -1, 0);
-		updateVertexCoord(vl, 1, 0);
-		updateVertexCoord(vlu, 0, -1);
-		updateVertexCoord(vru, 0, 1);
-	} else if (side == RIGHT) {
-		Triangle::Label tr = v->getTriangleRight();
-		Triangle::Label tl = tr->getTriangleLeft();
-		Triangle::Label tll = tl->getTriangleLeft();
-		Triangle::Label trr = tr->getTriangleRight();
-		Triangle::Label tlc = tl->getTriangleCenter();
-		Triangle::Label trc = tr->getTriangleCenter();
-
-		Vertex::Label vr = tr->getVertexRight();
-		Vertex::Label vlu = tl->getVertexLeft();
-		Vertex::Label vru = tl->getVertexRight();
-
-		trianglesAll.remove(tl);
-		trianglesAll.remove(tr);
-		Triangle::destroy(tl);
-		Triangle::destroy(tr);
-
-		Triangle::Label tln = Triangle::create();
-		Triangle::Label trn = Triangle::create();
-		trianglesAll.add(tln);
-		trianglesAll.add(trn);
-
-		tln->setVertices(v, vr, vlu);
-		trn->setVertices(vlu, vru, vr);
-
-		tln->setTriangleLeft(tll);
-		tln->setTriangleRight(trn);
-		trn->setTriangleRight(trr);
-		tln->setTriangleCenter(trc);
-		trn->setTriangleCenter(tlc);
-
-		updateVertexCoord(v, -1, 0);
-		updateVertexCoord(vr, 1, 0);
-		updateVertexCoord(vlu, 0, 1);
-		updateVertexCoord(vru, 0, -1);
+	if (t->isUpwards()) {
+		t->getVertexLeft()->setTriangleRight(tr);
+		t->getVertexRight()->setTriangleLeft(tr);
+	} else if (t->isDownwards()) {
+		tr->getVertexLeft()->setTriangleRight(t);
+		tr->getVertexRight()->setTriangleLeft(t);
 	}
+
+	t->setTriangleCenter(trc);
+	tr->setTriangleCenter(tc);
+
+	auto vl = t->getVertexLeft();
+	auto vr = t->getVertexRight();
+	auto vc = t->getVertexCenter();
+	auto vrr = tr->getVertexRight();
+
+	t->setVertices(vc, vrr, vl);
+	tr->setVertices(vl, vr, vrr);
+
+	if (verticesFour.contains(vl)) verticesFour.remove(vl);
+	if (isFourVertex(vr)) verticesFour.add(vr);
+	if (isFourVertex(vc)) verticesFour.add(vc);
+	if (verticesFour.contains(vrr)) verticesFour.remove(vrr);
+
+	if (trianglesFlip.contains(t->getTriangleLeft()) && (t->type == t->getTriangleLeft()->type)) trianglesFlip.remove(t->getTriangleLeft());
+	if (trianglesFlip.contains(tr) && (tr->type == tr->getTriangleRight()->type)) trianglesFlip.remove(tr);
+
+	if ((!trianglesFlip.contains(t->getTriangleLeft())) && (t->type != t->getTriangleLeft()->type)) trianglesFlip.add(t->getTriangleLeft());
+	if ((!trianglesFlip.contains(tr)) && (tr->type != tr->getTriangleRight()->type)) trianglesFlip.add(tr);
 }
 
-void Universe::updateVertexCoord(Vertex::Label v, int up, int down) {
-	if(v->nUp + v->nDown == 4)  // Since up != 0 or down != 0, no need to check if contains
-		verticesFour.remove(v);
-
-	if ((v->nUp > 2) && (v->nUp + up == 2))
-		verticesPlus.remove(v);
-
-	if ((up > 0) && (v->nUp == 2))  // If nUp == 2, then up >= 0
-		verticesPlus.add(v);
-
-	v->changeCoord(up, down);
-
-	if (v->nUp + v->nDown == 4)  // Since up != 0 or down !=, no need to check if does not contain
-		verticesFour.add(v);
+bool Universe::isFourVertex(Vertex::Label v) {
+	return (v->getTriangleLeft()->getTriangleRight() == v->getTriangleRight())
+				&& (v->getTriangleLeft()->getTriangleCenter()->getTriangleRight() == v->getTriangleRight()->getTriangleCenter());
 }
-
 
 void Universe::check() {
 	for (auto t : trianglesAll) {
@@ -253,20 +205,48 @@ void Universe::check() {
 		assert(t->getVertexRight() >= 0);
 		assert(t->getVertexCenter() >= 0);
 
+		if (trianglesFlip.contains(t)) {
+			assert(t->type != t->getTriangleRight()->type);
+		} else if (!trianglesFlip.contains(t)) {
+			assert(t->type == t->getTriangleRight()->type);
+		}
+	}
+
+	for (auto t : trianglesAll) {
+		if (t->isDownwards()) continue;
+
 		auto v = t->getVertexLeft();
 
-		if (v->nUp > 2) {
-			assert(Universe::verticesPlus.contains(v));
-		} else {
-			assert(v->nUp == 2);
-			assert(!Universe::verticesPlus.contains(v));
-		}
 
-		if (v->nUp + v->nDown == 4) {
+		int nu = 1;
+		auto tl = v->getTriangleLeft();
+		while (tl->getTriangleRight() != v->getTriangleRight()) {
+			tl = tl->getTriangleRight();
+			nu++;
+		}
+		nu++;
+
+		int nd = 1;
+		tl = v->getTriangleLeft()->getTriangleCenter();
+		while (tl->getTriangleRight() != v->getTriangleRight()->getTriangleCenter()) {
+			tl = tl->getTriangleRight();
+			nd++;
+		}
+		nd++;
+
+		if (nu + nd == 4) {
 			assert(Universe::verticesFour.contains(v));
 		} else {
 			assert(!Universe::verticesFour.contains(v));
 		}
+	}
+
+	for (auto v : verticesFour) {
+		auto tl = v->getTriangleLeft();
+		auto tr = v->getTriangleRight();
+
+		assert(tl->getTriangleRight() == tr);
+		assert(tr->getTriangleLeft() == tl);
 	}
 }
 
