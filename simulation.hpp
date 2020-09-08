@@ -10,7 +10,7 @@ class Simulation {
 public:
 	static double gsq;
 
-	static void start(int sweeps,int targetVolume_ = 0);
+	static void start(int sweeps,int targetVolume_, int seed = 0);
 
 	static void addObservable(Observable& o) {
 		observables.push_back(&o);

@@ -1,12 +1,12 @@
-#ifndef hausdorff_dual_hpp
-#define hausdorff_dual_hpp
+#ifndef HAUSDORFF_DUAL_HPP
+#define HAUSDORFF_DUAL_HPP
 
 #include "../observable.hpp"
 #include "../universe.hpp"
 
 class HausdorffDual : public Observable {
     public:
-        HausdorffDual() : Observable() { name = "hausdorff_dual"; };
+        HausdorffDual(std::string id) : Observable(id) { name = "hausdorff_dual"; };
 
         void process();
 

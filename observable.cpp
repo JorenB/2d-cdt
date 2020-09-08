@@ -18,8 +18,6 @@ void Observable::write() {
 
 	file << output << "\n";
 	file.close();
-
-    std::cout << filename << "\n";
 }
 
 void Observable::clear() {

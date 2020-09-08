@@ -11,8 +11,9 @@ class Observable {
 public:
 	std::string name;
 
-	Observable() {
-		identifier = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+	Observable(std::string identifier_) {
+		identifier = identifier_;
+		//identifier = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
 	}
 
 	void measure() {

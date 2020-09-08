@@ -36,3 +36,5 @@
 .DS_Store
 
 *.swp
+
+in/conf-*.ini

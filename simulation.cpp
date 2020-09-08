@@ -1,6 +1,5 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
 #include "simulation.hpp"
-#include "observables/volume.hpp"
 
 std::default_random_engine Simulation::rng(0);  // TODO: seed properly
 int Simulation::targetVolume = 0;
@@ -9,7 +8,7 @@ std::vector<Observable*> Simulation::observables;
 
 std::array<int, 2> Simulation::moveFreqs = {1, 1};
 
-void Simulation::start(int measurements, int targetVolume_) {
+void Simulation::start(int measurements, int targetVolume_, int seed) {
 	targetVolume = targetVolume_;
 
 	gsq = 0.25;
@@ -17,6 +16,8 @@ void Simulation::start(int measurements, int targetVolume_) {
 	for (auto o : observables) {
 		o->clear();
 	}
+
+	rng.seed(seed);
 	
 	grow();
 
@@ -24,8 +25,8 @@ void Simulation::start(int measurements, int targetVolume_) {
 
 	for (int i = 0; i < measurements; i++) {
 		sweep();
-		printf("sweep %d\n", i);
-		printf("vol: %d\n", Triangle::size());
+		printf("m %d\n", i);
+		fflush(stdout);
 	}
 
 }
@@ -63,7 +64,7 @@ void Simulation::sweep() {
 	bool measured = false;
 
 	std::array<int, 4> moves = {0, 0, 0, 0};
-	for (int i = 0; i < 100*targetVolume; i++) {
+	for (int i = 0; i < 500*targetVolume; i++) {
 		moves[attemptMove()]++;
 	}
 	
@@ -85,6 +86,10 @@ bool Simulation::moveAdd() {
 	if (targetVolume > 0) ar *= exp(epsilon * (targetVolume-n2));
 
 	Triangle::Label t = Universe::trianglesAll.pick();
+	
+	if (Universe::sphere) {
+		if (t->time == 0) return false;
+	}
 
 	if (ar < 1.0) { 
 		std::uniform_real_distribution<> uniform(0.0, 1.0);

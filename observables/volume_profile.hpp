@@ -7,7 +7,7 @@
 
 class VolumeProfile : public Observable {
 public:
-	VolumeProfile() : Observable() { name = "volume_profile"; }
+	VolumeProfile(std::string id) : Observable(id) { name = "volume_profile"; }
 
 	void process();
 };

@@ -6,7 +6,7 @@
 
 class Hausdorff : public Observable {
     public:
-        Hausdorff() : Observable() { name = "hausdorff"; };
+        Hausdorff(std::string id) : Observable(id) { name = "hausdorff"; };
 
         void process();
 

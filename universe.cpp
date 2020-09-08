@@ -3,6 +3,7 @@
 
 int Universe::nSlices = 0;
 std::vector<int> Universe::sliceSizes;
+bool Universe::sphere = false;
 std::default_random_engine Universe::rng(0);  // TODO: set seed somewhere else
 Bag<Triangle, Triangle::pool_size> Universe::trianglesAll(rng);
 Bag<Vertex, Vertex::pool_size> Universe::verticesFour(rng);

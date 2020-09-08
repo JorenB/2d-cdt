@@ -13,6 +13,7 @@ class Universe {
 public:
 	static int nSlices;
 	static std::vector<int> sliceSizes;
+	static bool sphere;
 
 	
 	static Bag<Triangle, Triangle::pool_size> trianglesAll;  // All triangles. These are candidates for the add move

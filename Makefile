@@ -1,4 +1,4 @@
-CXX = /usr/local/opt/llvm/bin/clang++
+#CXX = /usr/local/opt/llvm/bin/clang++
 CXXFLAGS = -std=c++14 -O3 -Wno-format
 
 #vpath %.cpp observables

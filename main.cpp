@@ -1,5 +1,6 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
 #include <iostream>
+#include <chrono>
 
 #include "include/INIReader.h"
 
@@ -11,25 +12,55 @@
 #include "simulation.hpp"
 #include "observable.hpp"
 #include "observables/volume_profile.hpp"
-#include "observables/coord.hpp"
+#include "observables/hausdorff.hpp"
+#include "observables/hausdorff_dual.hpp"
 
 int main(int argc, const char * argv[]) {
-	INIReader ir("in/conf.ini");
+	std::string fname;
+	if (argc > 1) {
+		fname = std::string(argv[1]);
+		printf("%s\n", fname.c_str());
+	}
+	INIReader ir(fname);
 
 	if (ir.ParseError() != 0) return 1;
 
 	int targetVolume = ir.GetInteger("geometry", "targetVolume", 0);
+	int slices = ir.GetInteger("geometry", "slices", 0);
+	std::string sphereString = ir.Get("geometry", "sphere", "false");
+	bool sphere = false;
+	if (sphereString == "true") sphere = true;
+
 
 	std::string fID = ir.Get("simulation", "fileID", "geen");
 	int measurements = ir.GetInteger("simulation", "measurements", 0);
 
-	Universe::create(10);
+	Universe::create(slices);
+	if (sphere) {
+		Universe::sphere = true;
+		targetVolume = 0;
+	}
 
-	VolumeProfile vp;
+	VolumeProfile vp(fID);
 	Simulation::addObservable(vp);
 
-	
-	Simulation::start(100, targetVolume);
+	Hausdorff haus(fID);
+	Simulation::addObservable(haus);
 
+	HausdorffDual hausd(fID);
+	Simulation::addObservable(hausd);
+
+
+	//int seed = std::chrono::system_clock::now().time_since_epoch().count();
+	unsigned int seed = 1;
+	unsigned int fidprod = 1;
+	for (int i = 0; i < fID.length(); i++) {
+		fidprod *= fID[i];
+	}
+	seed += fidprod;
+	printf("seed: %u\n", seed);
+	Simulation::start(measurements, targetVolume, seed);
+
+	printf("end\n");
 	return 0;
 }
