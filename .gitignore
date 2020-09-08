@@ -18,6 +18,7 @@
 *.bak
 *.tmp
 *.backup
+*.d
 
 ## Editors
 

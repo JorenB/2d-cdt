@@ -8,16 +8,18 @@
 
 class Simulation {
 public:
-	static int sweepSize;
-	static double lambda;
 	static double gsq;
 
-	static void start(int sweeps, int sweepSize_, double lambda_, int targetVolume_ = 0);
+	static void start(int sweeps,int targetVolume_ = 0);
 
 	static void addObservable(Observable& o) {
 		observables.push_back(&o);
 	}
 
+	static bool pinch;
+
+	static std::array<int, 2> moveFreqs;
+	static int attemptMove();
 private:
 	static std::default_random_engine rng;
 

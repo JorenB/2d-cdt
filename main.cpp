@@ -1,6 +1,8 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
 #include <iostream>
 
+#include "include/INIReader.h"
+
 #include "pool.hpp"
 #include "bag.hpp"
 #include "vertex.hpp"
@@ -12,14 +14,22 @@
 #include "observables/coord.hpp"
 
 int main(int argc, const char * argv[]) {
-	Universe::create(200);
+	INIReader ir("in/conf.ini");
+
+	if (ir.ParseError() != 0) return 1;
+
+	int targetVolume = ir.GetInteger("geometry", "targetVolume", 0);
+
+	std::string fID = ir.Get("simulation", "fileID", "geen");
+	int measurements = ir.GetInteger("simulation", "measurements", 0);
+
+	Universe::create(10);
 
 	VolumeProfile vp;
 	Simulation::addObservable(vp);
-	Coord coord;
-	Simulation::addObservable(coord);
 
-	Simulation::start(100, 1000000, 0.699, 250*250);
+	
+	Simulation::start(100, targetVolume);
 
 	return 0;
 }
