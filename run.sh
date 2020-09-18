@@ -20,7 +20,7 @@ sphere = $SPHERE
 fileID = $FID
 measurements = $MEASUREMENTS
 EOM
-./main.x $FILE
+srun -u main.x $FILE
 if [ $? -ne 0 ]
 then
 	exit 1

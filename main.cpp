@@ -44,11 +44,15 @@ int main(int argc, const char * argv[]) {
 	VolumeProfile vp(fID);
 	Simulation::addObservable(vp);
 
-	Hausdorff haus(fID);
-	Simulation::addObservable(haus);
+	//Hausdorff haus(fID);
+	//Simulation::addObservable(haus);
 
-	HausdorffDual hausd(fID);
-	Simulation::addObservable(hausd);
+	//HausdorffDual hausd(fID);
+	//Simulation::addObservable(hausd);
+
+
+
+
 
 
 	//int seed = std::chrono::system_clock::now().time_since_epoch().count();
