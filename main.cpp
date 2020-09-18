@@ -38,7 +38,7 @@ int main(int argc, const char * argv[]) {
 	Universe::create(slices);
 	if (sphere) {
 		Universe::sphere = true;
-		targetVolume = 0;
+		printf("sphere\n");
 	}
 
 	VolumeProfile vp(fID);

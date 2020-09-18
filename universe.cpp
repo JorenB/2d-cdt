@@ -281,6 +281,32 @@ void Universe::updateVertexData() {
 	vertexNeighbors.clear();
 	vertexNeighbors.resize(max+1);
 	for (auto v : vertices) {
+		if (sphere) {
+			if (v->time == 0) {
+				auto tl = v->getTriangleLeft();
+				Triangle::Label tn = tl;
+				do {
+					vertexNeighbors.at(v).push_back(tn->getVertexLeft());
+					tn = tn->getTriangleRight();
+				} while (tn->isDownwards());
+				vertexNeighbors.at(v).push_back(tn->getVertexCenter());
+				vertexNeighbors.at(v).push_back(tn->getVertexRight());
+
+				continue;
+			} else if (v->time == nSlices-1) {
+				auto tld = v->getTriangleLeft()->getTriangleCenter();
+				auto tn = tld;
+				do {
+					vertexNeighbors.at(v).push_back(tn->getVertexLeft());
+					tn = tn->getTriangleRight();
+				} while (tn->isUpwards());
+				vertexNeighbors.at(v).push_back(tn->getVertexCenter());
+				vertexNeighbors.at(v).push_back(tn->getVertexRight());
+
+				continue;
+			}
+		}
+
 		auto tl = v->getTriangleLeft();
 		Triangle::Label tn = tl;
 		do {
@@ -313,6 +339,17 @@ void Universe::updateTriangleData() {
 	triangleNeighbors.clear();
 	triangleNeighbors.resize(max+1);
 	for (auto t : trianglesAll) {
+		if (sphere) {
+			if (t->isUpwards() && t->time == 0) {
+				triangleNeighbors.at(t) = {t->getTriangleLeft(), t->getTriangleRight()};
+				continue;
+			}
+			if (t->isDownwards() && t->time == nSlices-1) {
+				triangleNeighbors.at(t) = {t->getTriangleLeft(), t->getTriangleRight()};
+				continue;
+			}
+		}
+
 		triangleNeighbors.at(t) = {t->getTriangleLeft(), t->getTriangleRight(), t->getTriangleCenter()};
 	}
 

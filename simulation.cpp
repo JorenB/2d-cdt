@@ -3,7 +3,8 @@
 
 std::default_random_engine Simulation::rng(0);  // TODO: seed properly
 int Simulation::targetVolume = 0;
-double Simulation::gsq = 0;
+double Simulation::lambda = 0;
+double Simulation::epsilon = 0.02;
 std::vector<Observable*> Simulation::observables;
 
 std::array<int, 2> Simulation::moveFreqs = {1, 1};
@@ -11,7 +12,7 @@ std::array<int, 2> Simulation::moveFreqs = {1, 1};
 void Simulation::start(int measurements, int targetVolume_, int seed) {
 	targetVolume = targetVolume_;
 
-	gsq = 0.25;
+	lambda = 0.693147;
 
 	for (auto o : observables) {
 		o->clear();
@@ -19,8 +20,9 @@ void Simulation::start(int measurements, int targetVolume_, int seed) {
 
 	rng.seed(seed);
 	
-	grow();
+	//tune();
 
+	grow();
 	thermalize();
 
 	for (int i = 0; i < measurements; i++) {
@@ -79,11 +81,16 @@ void Simulation::sweep() {
 }
 
 bool Simulation::moveAdd() {
-	double n2 = Triangle::size();
+	double n0 = Vertex::size();
+	//double n2 = Triangle::size();
 	double n0_four = Universe::verticesFour.size();
 
-	double ar = n2 / (2.0*(n0_four + 1.0)) * gsq;
-	if (targetVolume > 0) ar *= exp(epsilon * (targetVolume-n2));
+	//double edS = exp(-2*lambda);
+	//double rg = n2/(n2+2.0);
+	//double ar = edS*rg;
+
+	double ar = n0/(n0_four + 1.0) * exp(-2*lambda);
+	if (targetVolume > 0) ar *= exp(epsilon * (Triangle::size() < targetVolume ? 2.0 : -2.0));
 
 	Triangle::Label t = Universe::trianglesAll.pick();
 	
@@ -104,20 +111,31 @@ bool Simulation::moveAdd() {
 bool Simulation::moveDelete() {
 	if (Universe::verticesFour.size() == 0) return false;
 
-	double n2 = Triangle::size();
+	double n0 = Vertex::size();
+	//double n2 = Triangle::size();
 	double n0_four = Universe::verticesFour.size();
 
-	double ar = n0_four*2.0/(gsq * (n2-2.0));
-	if (targetVolume > 0) ar *= exp(-epsilon * (targetVolume-n2));
+	//double edS = exp(2*lambda);
+	//double rg = n2/(n2-2.0);
+	//double ar = edS*rg;
 
-	Vertex::Label v = Universe::verticesFour.pick();
-	if (Universe::sliceSizes[v->time] < 4) return false;  // reject moves that shrink slices below size 3
+	double ar = n0_four/(n0-1.0) * exp(2*lambda);
+	if (targetVolume > 0) ar *= exp(epsilon * (Triangle::size() < targetVolume ? -2.0 : 2.0));
 
 	if (ar < 1.0) {
 		std::uniform_real_distribution<> uniform(0.0, 1.0);
 		double r = uniform(rng);
 		if (r > ar) return false;
 	}	
+	
+	Vertex::Label v = Universe::verticesFour.pick();
+	//auto t = Universe::trianglesAll.pick();
+	//auto v = t->getVertexLeft();
+	//if (v->nUp + v->nDown != 4) return false;
+	
+	if (Universe::sliceSizes[v->time] < 4) return false;  // reject moves that shrink slices below size 3
+
+
 
 	Universe::removeVertex(v);
 
@@ -162,6 +180,50 @@ bool Simulation::moveFlip() {
 void Simulation::prepare() {
 	Universe::updateVertexData();
 	Universe::updateTriangleData();
+}
+
+void Simulation::tune() {
+	printf("start tune..\n");
+	fflush(stdout);
+	std::vector<int> volumes;
+	epsilon = 0.02;
+
+	bool done = false;
+	int tuneSteps = 50;
+	for (int k = 0; k < tuneSteps && !done; k++) {
+		for (int i = 0; i < targetVolume; i++) {
+			for (int j = 0; j < 100; j++) attemptMove();
+			
+			volumes.push_back(Triangle::size());
+		}
+
+		double avg = 0.0;
+		for (auto v : volumes) avg += (double) v;
+		avg /= volumes.size();
+
+		double sd = 0.0;
+		for (auto v : volumes) sd += ((double) v - avg)*((double) v - avg);
+		sd /= volumes.size();
+
+		if ((targetVolume - avg)*(targetVolume - avg) < 2*sd) {
+			epsilon *= 0.7;
+			if (epsilon < 0.02) {
+				epsilon = 0.02;
+				lambda -= 0.003 * (targetVolume - avg)/sqrt(sd);  
+			}
+		} else if ((targetVolume - avg)*(targetVolume - avg) > 8*sd) {
+			epsilon *= 1.2;
+			if (epsilon > 5.0) epsilon = 5.0;
+		} else if ((targetVolume - avg)*(targetVolume - avg) < 0.04*targetVolume*targetVolume) {
+			lambda += 0.6*(avg - targetVolume)/abs((avg-targetVolume)) * epsilon;
+		}
+		volumes.clear();
+		if (k >= tuneSteps && abs(avg-targetVolume) < 0.1*targetVolume && epsilon < 0.021) done = true;
+
+		printf("step %d - epsilon: %f, lambda: %f, avg: %f, sd: %f\n", k, epsilon, lambda, avg, sd);
+
+	}
+	
 }
 
 void Simulation::grow() {

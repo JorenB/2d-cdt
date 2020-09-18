@@ -2,7 +2,7 @@
 
 void HausdorffDual::process() {
     std::string tmp = "";
-	max_epsilon = 2*Universe::nSlices;
+	max_epsilon = Universe::nSlices;
     for(int i = 1; i < max_epsilon; i++) {
 		auto t = randomTriangle();
 

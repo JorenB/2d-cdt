@@ -8,7 +8,7 @@
 
 class Simulation {
 public:
-	static double gsq;
+	static double lambda;
 
 	static void start(int sweeps,int targetVolume_, int seed = 0);
 
@@ -24,7 +24,7 @@ private:
 	static std::default_random_engine rng;
 
 	static int targetVolume;
-	static double constexpr epsilon = 0.0001;
+	static double epsilon;
 	static bool measuring;
 
 	static std::vector<Observable*> observables;
@@ -37,6 +37,7 @@ private:
 
 	static void prepare();
 
+	static void tune();
 	static void grow();
 	static void thermalize();
 };

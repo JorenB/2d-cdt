@@ -2,7 +2,7 @@
 
 void Hausdorff::process() {
     std::string tmp = "";
-	max_epsilon = Universe::nSlices;
+	max_epsilon = Universe::nSlices/2;
     for(int i = 1; i < max_epsilon; i++) {
 		auto v = randomVertex();
 
