@@ -17,6 +17,7 @@ slices = $SLICES
 sphere = $SPHERE
 
 [simulation]
+seed = $1
 fileID = $FID
 measurements = $MEASUREMENTS
 EOM
@@ -29,5 +30,5 @@ fi
 for O in "${OBSERVABLES[@]}"
 do
 cat out/$O-$DIRNAME-$VOLUME-* > out/agg-$O-$DIRNAME-$VOLUME.dat
-cp out/agg-$O-$DIRNAME-$VOLUME.dat "$TARGET_DIR"
+cp out/agg-$O-$DIRNAME-$VOLUME.dat "$TARGET_DIR/agg-$DIRNAME-$O-$VOLUME.dat"
 done

@@ -32,6 +32,7 @@ int main(int argc, const char * argv[]) {
 	if (sphereString == "true") sphere = true;
 
 
+	int seed = ir.GetInteger("simulation", "seed", 0);
 	std::string fID = ir.Get("simulation", "fileID", "geen");
 	int measurements = ir.GetInteger("simulation", "measurements", 0);
 
@@ -41,8 +42,8 @@ int main(int argc, const char * argv[]) {
 		printf("sphere\n");
 	}
 
-	VolumeProfile vp(fID);
-	Simulation::addObservable(vp);
+	//VolumeProfile vp(fID);
+	//Simulation::addObservable(vp);
 
 	//Hausdorff haus(fID);
 	//Simulation::addObservable(haus);
@@ -56,13 +57,8 @@ int main(int argc, const char * argv[]) {
 
 
 	//int seed = std::chrono::system_clock::now().time_since_epoch().count();
-	unsigned int seed = 1;
-	unsigned int fidprod = 1;
-	for (int i = 0; i < fID.length(); i++) {
-		fidprod *= fID[i];
-	}
-	seed += fidprod;
-	printf("seed: %u\n", seed);
+	printf("seed: %d\n", seed);
+
 	Simulation::start(measurements, targetVolume, seed);
 
 	printf("end\n");
