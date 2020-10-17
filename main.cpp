@@ -1,9 +1,7 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
 #include <iostream>
-#include <chrono>
 
-#include "include/INIReader.h"
-
+#include "config.hpp"
 #include "pool.hpp"
 #include "bag.hpp"
 #include "vertex.hpp"
@@ -21,20 +19,18 @@ int main(int argc, const char * argv[]) {
 		fname = std::string(argv[1]);
 		printf("%s\n", fname.c_str());
 	}
-	INIReader ir(fname);
+	ConfigReader cfr;
+	cfr.read(fname);
 
-	if (ir.ParseError() != 0) return 1;
-
-	int targetVolume = ir.GetInteger("geometry", "targetVolume", 0);
-	int slices = ir.GetInteger("geometry", "slices", 0);
-	std::string sphereString = ir.Get("geometry", "sphere", "false");
+	int targetVolume = cfr.getInt("targetVolume");
+	int slices = cfr.getInt("slices");
+	std::string sphereString = cfr.getString("sphere");
 	bool sphere = false;
 	if (sphereString == "true") sphere = true;
 
-
-	int seed = ir.GetInteger("simulation", "seed", 0);
-	std::string fID = ir.Get("simulation", "fileID", "geen");
-	int measurements = ir.GetInteger("simulation", "measurements", 0);
+	int seed = cfr.getInt("seed");
+	std::string fID = cfr.getString("fileID");
+	int measurements = cfr.getInt("measurements");
 
 	Universe::create(slices);
 	if (sphere) {

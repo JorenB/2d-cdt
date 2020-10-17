@@ -1,0 +1,34 @@
+// Copyright 2018 Joren Brunekreef and Andrzej Görlich
+#pragma once
+
+#include <fstream>
+#include <unordered_map>
+
+class ConfigReader {
+public:
+	void read(std::string fname) {
+		std::ifstream infile(fname);
+		std::string key, value;
+
+		while (infile >> key >> value) {
+			dict[key] = value;
+		}
+
+		assert(dict.find("targetVolume") != dict.end());
+		assert(dict.find("slices") != dict.end());
+		assert(dict.find("sphere") != dict.end());
+		assert(dict.find("seed") != dict.end());
+		assert(dict.find("fileID") != dict.end());
+		assert(dict.find("measurements") != dict.end());
+	}
+
+	int getInt(std::string key) {
+		return std::stoi(dict[key]);
+	}
+
+	std::string getString(std::string key) {
+		return dict[key];
+	}
+private:
+	std::unordered_map<std::string, std::string> dict;
+};
