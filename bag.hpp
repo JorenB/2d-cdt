@@ -6,8 +6,7 @@
  * It stores integer values less than N.
  *
  ****/
-#ifndef BAG_HPP_
-#define BAG_HPP_
+#pragma once
 
 #include <cassert>
 #include <random>
@@ -67,10 +66,6 @@ public:
 	   }
 
 	   void log() {
-		   // printf("indices\n");
-		   /* for(int i = 0; i < capacity_; i++) {
-		   // printf("%d: %d\n", i, indices[i]);
-		   } */
 		   printf("elements\n");
 		   for (int i = 0; i < size_; i++) {
 			   printf("%d: %d\n", i, elements[i]);
@@ -81,7 +76,6 @@ public:
 
 	   //// Iterator for objects stored in a Bag ////
 
-	   auto begin()	{ return &elements[0]; }
-	   auto end()		{ return &elements[size_]; }
+	   auto begin() { return &elements[0]; }
+	   auto end() { return &elements[size_]; }
 };
-#endif  // BAG_HPP_

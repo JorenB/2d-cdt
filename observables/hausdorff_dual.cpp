@@ -1,9 +1,12 @@
+// Copyright 2018 Joren Brunekreef and Andrzej Görlich
+#include <string>
+#include <vector>
 #include "hausdorff_dual.hpp"
 
 void HausdorffDual::process() {
     std::string tmp = "";
 	max_epsilon = Universe::nSlices;
-    for(int i = 1; i < max_epsilon; i++) {
+    for (int i = 1; i < max_epsilon; i++) {
 		auto t = randomTriangle();
 
         std::vector<Triangle::Label> s1 = sphereDual(t, i);
@@ -12,7 +15,5 @@ void HausdorffDual::process() {
     }
 	tmp.pop_back();
 
-    output = tmp; 
+    output = tmp;
 }
-
-   

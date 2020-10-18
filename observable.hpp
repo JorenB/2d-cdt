@@ -1,10 +1,8 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
-#ifndef OBSERVABLE_HPP_
-#define OBSERVABLE_HPP_
+#pragma once
 
-#include <chrono>
 #include <string>
-#include <algorithm>
+#include <vector>
 #include "universe.hpp"
 
 class Observable {
@@ -13,7 +11,6 @@ public:
 
 	Observable(std::string identifier_) {
 		identifier = identifier_;
-		//identifier = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
 	}
 
 	void measure() {
@@ -52,4 +49,3 @@ protected:
 	std::string extension = ".dat";
 	std::string output;
 };
-#endif  // OBSERVABLE_HPP_

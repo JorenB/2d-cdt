@@ -1,7 +1,5 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
-#ifndef VERTEX_HPP_
-#define VERTEX_HPP_
-
+#pragma once
 #include "pool.hpp"
 
 class Triangle;
@@ -11,7 +9,6 @@ public:
 	int time;  // Slice number
 	int nUp;  // No. shared triangles in upper hemisphere
 	int nDown;  // No. shared triangles in lower hemisphere
-	
 
 	void changeCoord(int up, int down) {
 		nUp += up;
@@ -32,5 +29,3 @@ public:
 private:
 	Pool<Triangle>::Label tl, tr;  // triangles
 };
-
-#endif  // VERTEX_HPP_

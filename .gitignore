@@ -37,4 +37,8 @@
 
 *.swp
 
+## Configuration files
 in/conf-*.ini
+CPPLINT.cfg
+
+

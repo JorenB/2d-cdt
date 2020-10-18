@@ -1,6 +1,4 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
-#include <iostream>
-
 #include "config.hpp"
 #include "pool.hpp"
 #include "bag.hpp"
@@ -22,6 +20,7 @@ int main(int argc, const char * argv[]) {
 	ConfigReader cfr;
 	cfr.read(fname);
 
+	double lambda = cfr.getDouble("lambda");
 	int targetVolume = cfr.getInt("targetVolume");
 	int slices = cfr.getInt("slices");
 	std::string sphereString = cfr.getString("sphere");
@@ -38,25 +37,16 @@ int main(int argc, const char * argv[]) {
 		printf("sphere\n");
 	}
 
-	//VolumeProfile vp(fID);
-	//Simulation::addObservable(vp);
+	VolumeProfile vp(fID);
+	Simulation::addObservable(vp);
 
-	//Hausdorff haus(fID);
-	//Simulation::addObservable(haus);
-
-	//HausdorffDual hausd(fID);
-	//Simulation::addObservable(hausd);
+	Hausdorff haus(fID);
+	Simulation::addObservable(haus);
 
 
-
-
-
-
-	//int seed = std::chrono::system_clock::now().time_since_epoch().count();
 	printf("seed: %d\n", seed);
 
-	Simulation::start(measurements, targetVolume, seed);
-
+	Simulation::start(measurements, lambda, targetVolume, seed);
 	printf("end\n");
 	return 0;
 }

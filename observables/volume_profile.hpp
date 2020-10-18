@@ -1,7 +1,7 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
-#ifndef VOLUME_PROFILE_HPP_
-#define VOLUME_PROFILE_HPP_
+#pragma once
 
+#include <string>
 #include "../observable.hpp"
 #include "../universe.hpp"
 
@@ -11,4 +11,3 @@ public:
 
 	void process();
 };
-#endif  // VOLUME_PROFILE_HPP_

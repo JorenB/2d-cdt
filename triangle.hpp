@@ -1,6 +1,5 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
-#ifndef TRIANGLE_HPP_
-#define TRIANGLE_HPP_
+#pragma once
 
 #include <stdio.h>
 #include "pool.hpp"
@@ -43,7 +42,6 @@ public:
 		tc_->tc = *this;
 	}
 
-	
 	Vertex::Label getVertexLeft() const noexcept { return vl; }
 	Vertex::Label getVertexRight() const noexcept { return vr; }
 	Vertex::Label getVertexCenter() const noexcept { return vc; }
@@ -90,7 +88,7 @@ public:
 private:
 	Pool<Triangle>::Label tl, tr, tc;
 	Pool<Vertex>::Label vl, vr, vc;
-	
+
 	void updateType() {
 		if (vl->time < vc->time) {
 			type = UP;
@@ -106,4 +104,3 @@ private:
 		}
 	}
 };
-#endif  // TRIANGLE_HPP_

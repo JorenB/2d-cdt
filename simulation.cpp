@@ -1,7 +1,8 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
 #include "simulation.hpp"
+#include <vector>
 
-std::default_random_engine Simulation::rng(0);  // TODO: seed properly
+std::default_random_engine Simulation::rng(0);  // TODO(JorenB): seed properly
 int Simulation::targetVolume = 0;
 double Simulation::lambda = 0;
 double Simulation::epsilon = 0.02;
@@ -9,18 +10,17 @@ std::vector<Observable*> Simulation::observables;
 
 std::array<int, 2> Simulation::moveFreqs = {1, 1};
 
-void Simulation::start(int measurements, int targetVolume_, int seed) {
+void Simulation::start(int measurements, double lambda_, int targetVolume_, int seed) {
 	targetVolume = targetVolume_;
 
-	lambda = 0.693147;
+	lambda = lambda_;
 
 	for (auto o : observables) {
 		o->clear();
 	}
 
 	rng.seed(seed);
-	
-	//tune();
+	// tune();
 
 	grow();
 	thermalize();
@@ -30,7 +30,6 @@ void Simulation::start(int measurements, int targetVolume_, int seed) {
 		printf("m %d\n", i);
 		fflush(stdout);
 	}
-
 }
 
 int Simulation::attemptMove() {
@@ -49,14 +48,14 @@ int Simulation::attemptMove() {
 	int move = moveGen(rng);
 
 	if (move < cumFreqs[0]) {
-		if (binGen(rng) == 0) {	
+		if (binGen(rng) == 0) {
 			if (moveAdd()) return 1;
 		} else {
 			if (moveDelete()) return 2;
 		}
 	} else if (cumFreqs[0] <= move) {
 		if (moveFlip()) return 3;
-	} 
+	}
 
 	return 0;
 }
@@ -66,10 +65,10 @@ void Simulation::sweep() {
 	bool measured = false;
 
 	std::array<int, 4> moves = {0, 0, 0, 0};
-	for (int i = 0; i < 500*targetVolume; i++) {
+	for (int i = 0; i < 500 * targetVolume; i++) {
 		moves[attemptMove()]++;
 	}
-	
+
 	do {
 		attemptMove();
 	} while (Triangle::size() != targetVolume);
@@ -82,23 +81,26 @@ void Simulation::sweep() {
 
 bool Simulation::moveAdd() {
 	double n0 = Vertex::size();
-	//double n2 = Triangle::size();
+	// double n2 = Triangle::size();
 	double n0_four = Universe::verticesFour.size();
 
-	//double edS = exp(-2*lambda);
-	//double rg = n2/(n2+2.0);
-	//double ar = edS*rg;
+	// double edS = exp(- 2 * lambda);
+	// double rg = n2 / (n2 + 2.0);
+	// double ar = edS * rg;
 
-	double ar = n0/(n0_four + 1.0) * exp(-2*lambda);
-	if (targetVolume > 0) ar *= exp(epsilon * (Triangle::size() < targetVolume ? 2.0 : -2.0));
+	double ar = n0 / (n0_four + 1.0) * exp(- 2 * lambda);
+	if (targetVolume > 0) {
+		double expesp = exp(2 * epsilon);
+		ar *= Triangle::size() < targetVolume ? expesp : 1 / expesp;
+	}
 
 	Triangle::Label t = Universe::trianglesAll.pick();
-	
+
 	if (Universe::sphere) {
 		if (t->time == 0) return false;
 	}
 
-	if (ar < 1.0) { 
+	if (ar < 1.0) {
 		std::uniform_real_distribution<> uniform(0.0, 1.0);
 		double r = uniform(rng);
 		if (r > ar) return false;
@@ -112,30 +114,31 @@ bool Simulation::moveDelete() {
 	if (Universe::verticesFour.size() == 0) return false;
 
 	double n0 = Vertex::size();
-	//double n2 = Triangle::size();
+	// double n2 = Triangle::size();
 	double n0_four = Universe::verticesFour.size();
 
-	//double edS = exp(2*lambda);
-	//double rg = n2/(n2-2.0);
-	//double ar = edS*rg;
+	// double edS = exp(2 * lambda);
+	// double rg = n2 / (n2 - 2.0);
+	// double ar = edS * rg;
 
-	double ar = n0_four/(n0-1.0) * exp(2*lambda);
-	if (targetVolume > 0) ar *= exp(epsilon * (Triangle::size() < targetVolume ? -2.0 : 2.0));
+	double ar = n0_four / (n0 - 1.0) * exp(2 * lambda);
+	if (targetVolume > 0) {
+		double expesp = exp(2 * epsilon);
+		ar *= Triangle::size() < targetVolume ? 1 / expesp : expesp;
+	}
 
 	if (ar < 1.0) {
 		std::uniform_real_distribution<> uniform(0.0, 1.0);
 		double r = uniform(rng);
 		if (r > ar) return false;
-	}	
-	
+	}
+
 	Vertex::Label v = Universe::verticesFour.pick();
-	//auto t = Universe::trianglesAll.pick();
-	//auto v = t->getVertexLeft();
-	//if (v->nUp + v->nDown != 4) return false;
-	
+	// auto t = Universe::trianglesAll.pick();
+	// auto v = t->getVertexLeft();
+	// if (v->nUp + v->nDown != 4) return false;
+
 	if (Universe::sliceSizes[v->time] < 4) return false;  // reject moves that shrink slices below size 3
-
-
 
 	Universe::removeVertex(v);
 
@@ -153,8 +156,7 @@ bool Simulation::moveFlip() {
 	if (bernoulli(rng)) {
 		side = Universe::flipSide::LEFT;
 		wb = v->getTriangleLeft()->getVertexLeft()->nUp == 2 ? wb + 1 : wb;
-	}
-	else {
+	} else {
 		side = Universe::flipSide::RIGHT;
 		wb = v->getTriangleRight()->getVertexRight()->nUp == 2 ? wb + 1 : wb;
 	}
@@ -162,9 +164,9 @@ bool Simulation::moveFlip() {
 	if (v->nUp == 3)
 		wb -= 1;
 
-	double ar = 1.0*wa/wb;
+	double ar = 1.0 * wa / wb;
 
-	if (ar < 1.0) { 
+	if (ar < 1.0) {
 		std::uniform_real_distribution<> uniform(0.0, 1.0);
 		double r = uniform(rng);
 		if (r > ar) return false;
@@ -182,6 +184,7 @@ void Simulation::prepare() {
 	Universe::updateTriangleData();
 }
 
+#if 0  // tuning isn't used in the current setup
 void Simulation::tune() {
 	printf("start tune..\n");
 	fflush(stdout);
@@ -193,23 +196,23 @@ void Simulation::tune() {
 	for (int k = 0; k < tuneSteps && !done; k++) {
 		for (int i = 0; i < targetVolume; i++) {
 			for (int j = 0; j < 100; j++) attemptMove();
-			
+
 			volumes.push_back(Triangle::size());
 		}
 
 		double avg = 0.0;
-		for (auto v : volumes) avg += (double) v;
+		for (auto v : volumes) avg += static_cast<double>(v);
 		avg /= volumes.size();
 
 		double sd = 0.0;
-		for (auto v : volumes) sd += ((double) v - avg)*((double) v - avg);
+		for (auto v : volumes) sd += (static_cast<double>(v) - avg)*(static_cast<double>(v) - avg);
 		sd /= volumes.size();
 
 		if ((targetVolume - avg)*(targetVolume - avg) < 2*sd) {
 			epsilon *= 0.7;
 			if (epsilon < 0.02) {
 				epsilon = 0.02;
-				lambda -= 0.003 * (targetVolume - avg)/sqrt(sd);  
+				lambda -= 0.003 * (targetVolume - avg) / sqrt(sd);
 			}
 		} else if ((targetVolume - avg)*(targetVolume - avg) > 8*sd) {
 			epsilon *= 1.2;
@@ -221,10 +224,9 @@ void Simulation::tune() {
 		if (k >= tuneSteps && abs(avg-targetVolume) < 0.1*targetVolume && epsilon < 0.021) done = true;
 
 		printf("step %d - epsilon: %f, lambda: %f, avg: %f, sd: %f\n", k, epsilon, lambda, avg, sd);
-
 	}
-	
 }
+#endif
 
 void Simulation::grow() {
 	int growSteps = 0;
@@ -243,11 +245,10 @@ void Simulation::thermalize() {
 	int thermSteps = 0;
 	printf("thermalizing");
 	fflush(stdout);
-	//for (int i = 0; i < 50; i++) {
-	double coordBound = log(2*targetVolume)/(double)log(2);
+	double coordBound = log(2 * targetVolume) / static_cast<double>(log(2));
 	int maxUp, maxDown;
 	do {
-		for (int i = 0; i < 100*targetVolume; i++) attemptMove();
+		for (int i = 0; i < 100 * targetVolume; i++) attemptMove();
 		printf(".");
 		fflush(stdout);
 
@@ -258,7 +259,6 @@ void Simulation::thermalize() {
 			if (v->nUp > maxUp) maxUp = v->nUp;
 			if (v->nDown > maxDown) maxDown = v->nDown;
 		}
-		//printf("up: %d, down %d, bound: %f\n", maxUp, maxDown, coordBound);
 
 		thermSteps++;
 	} while (maxUp > coordBound || maxDown > coordBound);

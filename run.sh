@@ -3,7 +3,7 @@
 
 source params.sh
 
-FILE="in/conf-$1.ini"
+FILE="in/conf-$1.dat"
 
 DIRNAME=${PWD##*/}  
 
@@ -11,15 +11,13 @@ echo "vol: $VOLUME"
 FID="$DIRNAME-$VOLUME-$1"
 echo $FID
 cat <<EOM >$FILE
-[geometry]
-targetVolume = $VOLUME
-slices = $SLICES
-sphere = $SPHERE
-
-[simulation]
-seed = $1
-fileID = $FID
-measurements = $MEASUREMENTS
+lambda			0.693147
+targetVolume	$VOLUME
+slices			$SLICES
+sphere			$SPHERE
+seed			$1
+fileID			$FID
+measurements	$MEASUREMENTS
 EOM
 srun -u main.x $FILE
 if [ $? -ne 0 ]

@@ -2,18 +2,21 @@
 #pragma once
 
 #include <fstream>
+#include <string>
 #include <unordered_map>
 
 class ConfigReader {
 public:
 	void read(std::string fname) {
 		std::ifstream infile(fname);
+		assert(infile.is_open());
 		std::string key, value;
 
 		while (infile >> key >> value) {
 			dict[key] = value;
 		}
 
+		assert(dict.find("lambda") != dict.end());
 		assert(dict.find("targetVolume") != dict.end());
 		assert(dict.find("slices") != dict.end());
 		assert(dict.find("sphere") != dict.end());
@@ -26,9 +29,14 @@ public:
 		return std::stoi(dict[key]);
 	}
 
+	double getDouble(std::string key) {
+		return std::stod(dict[key]);
+	}
+
 	std::string getString(std::string key) {
 		return dict[key];
 	}
+
 private:
 	std::unordered_map<std::string, std::string> dict;
 };

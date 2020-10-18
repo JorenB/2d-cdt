@@ -1,4 +1,5 @@
 // Copyright 2018 Joren Brunekreef and Andrzej Görlich
+#include <string>
 #include "volume_profile.hpp"
 
 void VolumeProfile::process() {
@@ -8,6 +9,6 @@ void VolumeProfile::process() {
 		tmp += " ";
 	}
 	tmp.pop_back();
-	
+
 	output = tmp;
 }

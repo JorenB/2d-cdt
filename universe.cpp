@@ -4,7 +4,7 @@
 int Universe::nSlices = 0;
 std::vector<int> Universe::sliceSizes;
 bool Universe::sphere = false;
-std::default_random_engine Universe::rng(0);  // TODO: set seed somewhere else
+std::default_random_engine Universe::rng(0);  // TODO(JorenB): set seed somewhere else
 Bag<Triangle, Triangle::pool_size> Universe::trianglesAll(rng);
 Bag<Vertex, Vertex::pool_size> Universe::verticesFour(rng);
 Bag<Vertex, Vertex::pool_size> Universe::verticesPlus(rng);
@@ -58,7 +58,7 @@ void Universe::initialize() {
 			trianglesAll.add(tr);
 		}
 	}
-	
+
 	// set triangle connectivity
 	int row = 0, column = 0;
 	for(int i = 0; i < t; ++i) {
@@ -240,7 +240,6 @@ void Universe::updateVertexCoord(Vertex::Label v, int up, int down) {
 
 	if (v->nUp + v->nDown == 4)  // Since up != 0 or down !=, no need to check if does not contain
 		verticesFour.add(v);
-		
 }
 
 
@@ -253,17 +252,21 @@ void Universe::check() {
 		assert(t->getVertexLeft() >= 0);
 		assert(t->getVertexRight() >= 0);
 		assert(t->getVertexCenter() >= 0);
-		
+
 		auto v = t->getVertexLeft();
 
-		if (v->nUp > 2) assert(Universe::verticesPlus.contains(v));
-		else {
+		if (v->nUp > 2) {
+			assert(Universe::verticesPlus.contains(v));
+		} else {
 			assert(v->nUp == 2);
 			assert(!Universe::verticesPlus.contains(v));
 		}
 
-		if (v->nUp + v->nDown == 4) assert(Universe::verticesFour.contains(v));
-		else assert(!Universe::verticesFour.contains(v));
+		if (v->nUp + v->nDown == 4) {
+			assert(Universe::verticesFour.contains(v));
+		} else {
+			assert(!Universe::verticesFour.contains(v));
+		}
 	}
 }
 
@@ -322,8 +325,6 @@ void Universe::updateVertexData() {
 			tn = tn->getTriangleLeft();
 		}
 		vertexNeighbors.at(v).push_back(tn->getVertexCenter());
-
-
 	}
 }
 
@@ -352,5 +353,4 @@ void Universe::updateTriangleData() {
 
 		triangleNeighbors.at(t) = {t->getTriangleLeft(), t->getTriangleRight(), t->getTriangleCenter()};
 	}
-
 }
