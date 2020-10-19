@@ -3,6 +3,8 @@
 
 source params.sh
 
+[ ! -d "in" ] && mkdir in
+[ ! -d "out" ] && mkdir out
 FILE="in/conf-$1.dat"
 
 DIRNAME=${PWD##*/}  
