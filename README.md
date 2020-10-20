@@ -13,7 +13,7 @@ The simplest method for running the executable is to pass a config file as an ar
 ```
 The template for a config file is as follows:
 ```
-lambda           0.693147
+lambda          0.693147
 targetVolume    16000
 slices          100
 seed            1

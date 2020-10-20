@@ -1,4 +1,4 @@
-// Copyright 2018 Joren Brunekreef and Andrzej Görlich
+// Copyright 2020 Joren Brunekreef and Andrzej Görlich
 #include <fstream>
 #include <vector>
 #include "observable.hpp"

@@ -1,4 +1,4 @@
-// Copyright 2018 Joren Brunekreef and Andrzej Görlich
+// Copyright 2020 Joren Brunekreef and Andrzej Görlich
 #include <vector>
 #include <string>
 #include "hausdorff.hpp"

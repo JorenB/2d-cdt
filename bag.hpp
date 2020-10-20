@@ -1,4 +1,4 @@
-// Copyright 2018 Joren Brunekreef and Andrzej Görlich
+// Copyright 2020 Joren Brunekreef and Andrzej Görlich
 /****
  *
  * Bag is an implementation of a set-like data structure.
