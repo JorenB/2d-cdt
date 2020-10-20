@@ -10,6 +10,10 @@
 #include "observables/volume_profile.hpp"
 #include "observables/hausdorff.hpp"
 #include "observables/hausdorff_dual.hpp"
+#include "observables/ricci.hpp"
+#include "observables/ricci_dual.hpp"
+#include "observables/riccih.hpp"
+#include "observables/ricciv.hpp"
 
 int main(int argc, const char * argv[]) {
 	std::string fname;
