@@ -10,9 +10,12 @@ Bag<Vertex, Vertex::pool_size> Universe::verticesFour(rng);
 Bag<Triangle, Triangle::pool_size> Universe::trianglesFlip(rng);
 
 std::vector<Vertex::Label> Universe::vertices;
+std::vector<Link::Label> Universe::links;
 std::vector<Triangle::Label> Universe::triangles;
 std::vector<std::vector<Vertex::Label>> Universe::vertexNeighbors;
 std::vector<std::vector<Triangle::Label>> Universe::triangleNeighbors;
+std::vector<std::vector<Link::Label>> Universe::vertexLinks;
+std::vector<std::vector<Link::Label>> Universe::triangleLinks;
 
 void Universe::create(int nSlices_) {
 	nSlices = nSlices_;
@@ -306,6 +309,55 @@ void Universe::updateVertexData() {
 		}
 		vertexNeighbors.at(v).push_back(tn->getVertexCenter());
 	}
+}
+
+void Universe::updateLinkData() {
+	for (auto l : links) {
+		Link::destroy(l);
+	}
+
+	links.clear();
+	int max = 0;
+
+	vertexLinks.clear();
+	for (int i = 0; i < vertexNeighbors.size(); i++) {
+		vertexLinks.push_back({});
+	}
+	triangleLinks.clear();
+	for (int i = 0; i < triangleNeighbors.size(); i++) {
+		triangleLinks.push_back({-1, -1, -1});
+	}
+
+	for (auto t : trianglesAll) {
+		auto ll = Link::create();  // left link
+		if (t->isUpwards()) ll->setVertices(t->getVertexLeft(), t->getVertexCenter());
+		else if (t->isDownwards()) ll->setVertices(t->getVertexCenter(), t->getVertexLeft());
+		ll->setTriangles(t->getTriangleLeft(), t);
+
+		vertexLinks.at(t->getVertexLeft()).push_back(ll);
+		vertexLinks.at(t->getVertexCenter()).push_back(ll);
+
+		triangleLinks.at(t).at(0) = ll;
+		triangleLinks.at(t->getTriangleLeft()).at(1) = ll;
+		links.push_back(ll);
+		if (ll > max) max = ll;
+		if (t->isUpwards()) {
+			auto lh = Link::create();  // horizontal link
+			lh->setVertices(t->getVertexLeft(), t->getVertexRight());
+			lh->setTriangles(t, t->getTriangleCenter());
+
+			vertexLinks.at(t->getVertexLeft()).push_back(lh);
+			vertexLinks.at(t->getVertexRight()).push_back(lh);
+
+			triangleLinks.at(t).at(2) = lh;
+			triangleLinks.at(t->getTriangleCenter()).at(2) = lh;
+
+			links.push_back(lh);
+			if (lh > max) max = lh;
+		}
+	}
+
+	assert(links.size() == 3*vertices.size());
 }
 
 void Universe::updateTriangleData() {

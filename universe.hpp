@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include "vertex.hpp"
+#include "link.hpp"
 #include "triangle.hpp"
 #include "pool.hpp"
 #include "bag.hpp"
@@ -36,12 +37,17 @@ public:
 	static void check();
 
 	static void updateVertexData();
+	static void updateLinkData();
 	static void updateTriangleData();
 
 	static std::vector<Vertex::Label> vertices;
+	static std::vector<Link::Label> links;
 	static std::vector<Triangle::Label> triangles;
 	static std::vector<std::vector<Vertex::Label>> vertexNeighbors;
 	static std::vector<std::vector<Triangle::Label>> triangleNeighbors;
+
+	static std::vector<std::vector<Link::Label>> vertexLinks;
+	static std::vector<std::vector<Link::Label>> triangleLinks;
 
 private:
 	Universe() {}

@@ -180,6 +180,7 @@ bool Simulation::moveFlip() {
 void Simulation::prepare() {
 	Universe::updateVertexData();
 	Universe::updateTriangleData();
+	Universe::updateLinkData();
 }
 
 #if 0  // tuning isn't used in the current setup
