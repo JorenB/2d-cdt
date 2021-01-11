@@ -36,7 +36,7 @@ int Simulation::attemptMove() {
 	std::array<int, 2> cumFreqs = {0, 0};
 	int freqTotal = 0;
 	int prevCumFreq = 0;
-	for (int i = 0; i < moveFreqs.size(); i++) {
+	for (auto i = 0u; i < moveFreqs.size(); i++) {
 		freqTotal += moveFreqs[i];
 		cumFreqs[i] = prevCumFreq + moveFreqs[i];
 		prevCumFreq = cumFreqs[i];
@@ -62,7 +62,6 @@ int Simulation::attemptMove() {
 
 void Simulation::sweep() {
 	std::uniform_int_distribution<> uniform_int(0, 3);
-	bool measured = false;
 
 	std::array<int, 4> moves = {0, 0, 0, 0};
 	for (int i = 0; i < 500 * targetVolume; i++) {

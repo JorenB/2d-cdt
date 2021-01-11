@@ -320,11 +320,11 @@ void Universe::updateLinkData() {
 	int max = 0;
 
 	vertexLinks.clear();
-	for (int i = 0; i < vertexNeighbors.size(); i++) {
+	for (auto i = 0u; i < vertexNeighbors.size(); i++) {
 		vertexLinks.push_back({});
 	}
 	triangleLinks.clear();
-	for (int i = 0; i < triangleNeighbors.size(); i++) {
+	for (auto i = 0u; i < triangleNeighbors.size(); i++) {
 		triangleLinks.push_back({-1, -1, -1});
 	}
 

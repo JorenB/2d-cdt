@@ -4,11 +4,11 @@ This codebase provides a simple framework for sampling the partition sum of two-
 
 ## Usage
 The code can be built using GNU Make:
-```
+```bash
 make all
 ```
 The simplest method for running the executable is to pass a config file as an argument (one may have to create the directory `out` first, if it does not exist yet):
-```
+```bash
 ./main.x conf.dat
 ```
 The template for a config file is as follows:

@@ -1,6 +1,7 @@
 // Copyright 2020 Joren Brunekreef and Andrzej Görlich
 #include <fstream>
 #include <vector>
+#include <algorithm>
 #include "observable.hpp"
 
 std::default_random_engine Observable::rng(0);  // TODO(JorenB): seed properly

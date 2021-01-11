@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
+#include <cassert>
 
 class ConfigReader {
 public:
