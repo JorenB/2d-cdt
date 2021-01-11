@@ -5,13 +5,13 @@ This codebase provides a simple framework for sampling the partition sum of two-
 ## Usage
 The code can be built using GNU Make:
 ```bash
-make all
+make
 ```
-The simplest method for running the executable is to pass a config file as an argument (one may have to create the directory `out` first, if it does not exist yet):
+The directory `example` shows how to start a simple simulation of a small CDT system. Issuing the command (one may have to fix execute permissions)
 ```bash
-./main.x conf.dat
+./run.sh
 ```
-The template for a config file is as follows:
+will build the project and run the simulation with a standard config file. The template for such a config file is as follows:
 ```
 lambda          0.693147
 targetVolume    16000
@@ -31,21 +31,7 @@ All parameters are required.
 - `measurements` is the number of measurements that should be performed for each observable before execution terminates.
 - `sphere` instructs the simulation whether to force the configuration into an effective spherical topology or not. More comments on the spherical topology follow below.
 
-Another method of running the simulation is to specify several parameters in the file `params.sh`, and subsequently use
-```
-./run.sh <seed>
-```
-If this method is used to run the simulation directly (instead of through a slurm job), make sure to comment the `srun -u main.x $FILE` line, and uncomment `./main.x $FILE`. The bash script `run.sh` reads the parameters and generates a config file in the directory `in/` using `<seed>`, while also setting the `fileID` to `<dirname>-<targetVolume>-<seed>`. Subsequently, it runs the simulation. If the simulation is completed successfully, all output of the measured observables (possibly including output of simulations with a different seed run in the same directory, see below) will be copied to `$TARGET_DIR`.
+## Observables
+Several standard observables are supplied in the directory `observables`. These can be added to the simulation in `main.cpp`. In the standard `main.cpp`, it is shown how to do this for the volume profile and Hausdorff dimension observables.
 
-### Batch execution
-For large system sizes or time-consuming observables, one generally wants to run several simulations in parallel (with different seeds) on a computing cluster to collect data faster. This can be achieved using `batch.sh`. It submits a number of jobs to a `slurm` queue, where every job executes `run.sh` with a distinct seed. It should not be difficult to adapt `batch.sh` to interact with job schedulers other than `slurm`.
-
-The basic usage is
-```
-./batch.sh <start> <end>
-```
-where `<start>` and `end` are integers. This will submit the jobs 
-```
-./run.sh <i>
-```
-to the job scheduler for all `<i>` in the range `<start>..<end>`. Every time a single job finishes execution, _all_ measurement output for the `$TARGET_VOLUME` set in `params.sh` is concatenated into a file (distinct files for distinct observables) in `$TARGET_DIR`. Therefore, the folder `out` in the executable directory may contain many measurement output files of the form `<observable>-<dirname>-<$TARGET_VOLUME>-<i>.dat`, but `$TARGET_DIR` will contain only a single file named `agg-<observable>-<dirname>-<$TARGET_VOLUME>.dat` for every `<observable>`. This helps maintain order in directories where the data will be analyzed.
+Custom observables can be created based on the standard observables supplied here. The class `Universe` offers access to all `Vertex`, `Link`, and `Triangle` objects, and lists containing the neighbors of `Vertex` and `Triangle` objects. Furthermore, the class `Observable` provides methods for constructing metric spheres (circles) on both the direct and dual lattices, and methods for computing the (dual) distance between arbitrary `Vertex` and `Triangle` objects.

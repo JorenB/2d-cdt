@@ -12,4 +12,4 @@ clean:
 	$(RM) $(MAIN) out/*.dat
 
 test: build
-	./$(MAIN) config.txt
+	./$(MAIN) config.dat
