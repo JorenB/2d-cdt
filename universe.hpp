@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <random>
+#include <iostream>
+#include <fstream>
+#include <unordered_map>
 #include "vertex.hpp"
 #include "link.hpp"
 #include "triangle.hpp"
@@ -14,6 +17,7 @@ public:
 	static int nSlices;
 	static std::vector<int> sliceSizes;
 	static bool sphere;
+	static bool imported;
 
 	static Bag<Triangle, Triangle::pool_size> trianglesAll;  // All triangles. These are candidates for the add move
 	static Bag<Vertex, Vertex::pool_size> verticesFour;  // Vertices with coordination number 4. These are candidates for the delete move
@@ -39,6 +43,10 @@ public:
 	static void updateVertexData();
 	static void updateLinkData();
 	static void updateTriangleData();
+
+	static void exportGeometry(std::string geometryFilename);
+	static void importGeometry(std::string geometryFilename);
+	static std::string getGeometryFilename(int targetVolume, int slices, int seed);
 
 	static std::vector<Vertex::Label> vertices;
 	static std::vector<Link::Label> links;

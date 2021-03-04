@@ -5,3 +5,4 @@ sphere			false
 seed			123
 fileID			example-16000-123
 measurements	10
+importGeom		true

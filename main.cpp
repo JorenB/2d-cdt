@@ -24,17 +24,29 @@ int main(int argc, const char * argv[]) {
 	int targetVolume = cfr.getInt("targetVolume");
 	int slices = cfr.getInt("slices");
 	std::string sphereString = cfr.getString("sphere");
-	bool sphere = false;
-	if (sphereString == "true") sphere = true;
+	if (sphereString == "true") {
+		Universe::sphere = true;
+		printf("sphere\n");
+	}
 
 	int seed = cfr.getInt("seed");
 	std::string fID = cfr.getString("fileID");
 	int measurements = cfr.getInt("measurements");
+	std::string impGeomString = cfr.getString("importGeom");
+	bool impGeom = false;
+	if (impGeomString == "true") impGeom = true;
 
-	Universe::create(slices);
-	if (sphere) {
-		Universe::sphere = true;
-		printf("sphere\n");
+	if (impGeom) {
+		std::string geomFn = Universe::getGeometryFilename(targetVolume, slices, seed);
+		if (geomFn != "") {
+			Universe::importGeometry(geomFn);
+		} else {
+			printf("No suitable geometry file found. Creating new Universe...\n");
+		}
+	}
+
+	if (Universe::imported == false) {
+		Universe::create(slices);
 	}
 
 	VolumeProfile vp(fID);

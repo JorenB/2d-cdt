@@ -22,8 +22,14 @@ void Simulation::start(int measurements, double lambda_, int targetVolume_, int 
 	rng.seed(seed);
 	// tune();
 
-	grow();
-	thermalize();
+	if (!Universe::imported) {
+		grow();
+		thermalize();
+		std::string expFn = "geom/geometry-V"+std::to_string(targetVolume)+"-sl"+std::to_string(Universe::nSlices)+"-s"+std::to_string(seed);
+		if (Universe::sphere) expFn += "-sphere";
+		expFn += ".txt";
+		Universe::exportGeometry(expFn);
+	}
 
 	for (int i = 0; i < measurements; i++) {
 		sweep();

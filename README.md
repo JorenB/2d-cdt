@@ -20,6 +20,7 @@ seed            1
 fileID          collab-16000-1
 measurements    100
 sphere          false
+importGeom      true
 ```
 All parameters are required. 
 
@@ -30,6 +31,7 @@ All parameters are required.
 - `fileID` is the identifier used to mark output files of observables.
 - `measurements` is the number of measurements that should be performed for each observable before execution terminates.
 - `sphere` instructs the simulation whether to force the configuration into an effective spherical topology or not. More comments on the spherical topology follow below.
+- `importGeom` instructs whether the program should search for a previously generated geometry that matches the targetVolume, slices and seed, before starting the simulation. Geometries are exported to / imported from the folder `geom/`.
 
 ## Observables
 Several standard observables are supplied in the directory `observables`. These can be added to the simulation in `main.cpp`. In the standard `main.cpp`, it is shown how to do this for the volume profile and Hausdorff dimension observables.
