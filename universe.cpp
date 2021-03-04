@@ -4,6 +4,7 @@
 int Universe::nSlices = 0;
 std::vector<int> Universe::sliceSizes;
 bool Universe::sphere = false;
+bool Universe::imported = false;
 std::default_random_engine Universe::rng(0);  // TODO(JorenB): set seed somewhere else
 Bag<Triangle, Triangle::pool_size> Universe::trianglesAll(rng);
 Bag<Vertex, Vertex::pool_size> Universe::verticesFour(rng);
@@ -385,4 +386,166 @@ void Universe::updateTriangleData() {
 
 		triangleNeighbors.at(t) = {t->getTriangleLeft(), t->getTriangleRight(), t->getTriangleCenter()};
 	}
+}
+
+void Universe::exportGeometry(std::string geometryFilename) {
+
+	updateTriangleData();
+	updateVertexData();
+
+	std::unordered_map<int, int> vertexMap;
+	std::vector<Vertex::Label> intVMap;
+	intVMap.resize(vertices.size());
+
+	int i = 0;
+	for (auto v : vertices) {
+		vertexMap.insert({v, i});
+		intVMap.at(i) = v;
+		i++;
+	}
+
+	std::unordered_map<int, int> triangleMap;
+	std::vector<Triangle::Label> intTMap;
+	intTMap.resize(triangles.size());
+
+	i = 0;
+	for (auto t : triangles) {
+		triangleMap.insert({t, i});
+		intTMap.at(i) = t;
+		i++;
+	}
+
+	std::string output;
+
+	output += std::to_string(vertices.size());
+	output += "\n";
+
+	for (int j = 0; j < intVMap.size(); j++) {
+		output += std::to_string(intVMap.at(j)->time);
+		output += "\n";
+	}
+
+	output += std::to_string(vertices.size());
+	output += "\n";
+	output += std::to_string(triangles.size());
+	output += "\n";
+
+	for (int j = 0; j < intTMap.size(); j++) {
+		Triangle::Label t = intTMap.at(j);
+
+		Vertex::Label tVs [3] = {t->getVertexLeft(),t->getVertexRight(),t->getVertexCenter()};
+		for (auto v : tVs) {
+			output += std::to_string(vertexMap.at(v));
+			output += "\n";
+		}
+
+		Triangle::Label tNeighb [3] = {t->getTriangleLeft(),t->getTriangleRight(),t->getTriangleCenter()};
+		for (auto t : tNeighb) {
+			output += std::to_string(triangleMap.at(t));
+			output += "\n";
+		}
+	}
+
+	output += std::to_string(triangles.size());
+
+    std::ofstream file;
+    file.open(geometryFilename, std::ios::out | std::ios::trunc);
+	assert(file.is_open());
+
+	file << output << "\n";
+	file.close();
+
+    std::cout << geometryFilename << "\n";
+}
+
+void Universe::importGeometry(std::string geometryFilename) {
+	trianglesAll.clear(); //added function to bag!
+	verticesFour.clear();
+	trianglesFlip.clear();
+	sliceSizes.clear();
+
+	std::ifstream infile(geometryFilename.c_str());
+	assert(!infile.fail());
+	int line;
+
+	int nV;
+	infile >> nV;
+	std::vector<Vertex::Label> vs(nV);
+
+	int maxTime = 0;
+	for (int i = 0; i < nV; i++) {
+		infile >> line;
+		auto v = Vertex::create();
+		v->time = line;
+		vs.at(i) = v;
+		if (v->time > maxTime) maxTime = v->time;
+	}
+	infile >> line;
+	assert(line == nV);
+	//if (line != nV) return false;
+
+	nSlices = maxTime+1;
+	sliceSizes.resize(maxTime+1);
+	std::fill(sliceSizes.begin(), sliceSizes.end(), 0);
+
+	int nT;
+	infile >> nT;
+	for (int i = 0; i < nT; i++) {
+		auto t = Triangle::create();
+
+		int tVs[3];
+		for (int j = 0; j < 3; j++) {
+			infile >> tVs[j];
+		}
+
+		int tNeighb[3];
+		for (int j = 0; j < 3; j++) {
+			infile >> tNeighb[j];
+		}
+
+		t->setVertices(tVs[0], tVs[1], tVs[2]);
+		t->setTriangles(tNeighb[0], tNeighb[1], tNeighb[2]);
+		
+		trianglesAll.add(t);
+	}
+	infile >> line;
+	assert(line == nT);
+	//if (line != nT) return false;
+
+	printf("read %s\n", geometryFilename.c_str());
+
+	for (auto v : vs) sliceSizes.at(v->time)++;
+	if (sphere) assert(sliceSizes.at(0) == 3);
+
+	updateTriangleData();
+	updateVertexData();
+
+	for (auto v : vertices) { //add vertices four
+		if (v->getTriangleLeft() == v->getTriangleRight()->getTriangleLeft() && v->getTriangleLeft()->getTriangleCenter() == v->getTriangleRight()->getTriangleCenter()->getTriangleLeft()) {
+			verticesFour.add(v);
+		}
+	}
+
+	for (auto t : triangles) { //add flippable triangles
+		if (t->type != t->getTriangleRight()->type) {
+			trianglesFlip.add(t);
+		}
+	}
+
+	imported = true;
+}
+
+std::string Universe::getGeometryFilename(int targetVolume, int slices, int seed) {
+
+	std::string expectedFn = "geom/geometry-V"+std::to_string(targetVolume)+"-sl"+std::to_string(slices)+"-s"+std::to_string(seed);
+	if (sphere) expectedFn += "-sphere";
+	expectedFn += ".txt";
+	std::cout << "Searching for " << expectedFn << std::endl;
+
+	std::ifstream f(expectedFn.c_str());
+	if (f.good()) {
+		return expectedFn;
+	}
+
+	return "";
 }

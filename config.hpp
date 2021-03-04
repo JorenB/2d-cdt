@@ -24,6 +24,7 @@ public:
 		assert(dict.find("seed") != dict.end());
 		assert(dict.find("fileID") != dict.end());
 		assert(dict.find("measurements") != dict.end());
+		assert(dict.find("importGeom") != dict.end());
 	}
 
 	int getInt(std::string key) {
