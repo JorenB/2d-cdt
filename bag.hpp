@@ -74,13 +74,6 @@ public:
 		   printf("--\n");
 	   }
 
-
-	   void clear() {
-	       indices.fill(EMPTY);
-	       elements.fill(EMPTY);
-	       size_ = 0;
-	   }
-
 	   //// Iterator for objects stored in a Bag ////
 
 	   auto begin() { return &elements[0]; }

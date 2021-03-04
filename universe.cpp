@@ -389,7 +389,6 @@ void Universe::updateTriangleData() {
 }
 
 void Universe::exportGeometry(std::string geometryFilename) {
-
 	updateTriangleData();
 	updateVertexData();
 
@@ -448,22 +447,17 @@ void Universe::exportGeometry(std::string geometryFilename) {
 
 	output += std::to_string(triangles.size());
 
-    std::ofstream file;
-    file.open(geometryFilename, std::ios::out | std::ios::trunc);
+	std::ofstream file;
+	file.open(geometryFilename, std::ios::out | std::ios::trunc);
 	assert(file.is_open());
 
 	file << output << "\n";
 	file.close();
 
-    std::cout << geometryFilename << "\n";
+	std::cout << geometryFilename << "\n";
 }
 
 void Universe::importGeometry(std::string geometryFilename) {
-	trianglesAll.clear(); //added function to bag!
-	verticesFour.clear();
-	trianglesFlip.clear();
-	sliceSizes.clear();
-
 	std::ifstream infile(geometryFilename.c_str());
 	assert(!infile.fail());
 	int line;
@@ -482,7 +476,6 @@ void Universe::importGeometry(std::string geometryFilename) {
 	}
 	infile >> line;
 	assert(line == nV);
-	//if (line != nV) return false;
 
 	nSlices = maxTime+1;
 	sliceSizes.resize(maxTime+1);
@@ -510,35 +503,36 @@ void Universe::importGeometry(std::string geometryFilename) {
 	}
 	infile >> line;
 	assert(line == nT);
-	//if (line != nT) return false;
 
 	printf("read %s\n", geometryFilename.c_str());
 
 	for (auto v : vs) sliceSizes.at(v->time)++;
 	if (sphere) assert(sliceSizes.at(0) == 3);
 
-	updateTriangleData();
-	updateVertexData();
-
-	for (auto v : vertices) { //add vertices four
-		if (v->getTriangleLeft() == v->getTriangleRight()->getTriangleLeft() && v->getTriangleLeft()->getTriangleCenter() == v->getTriangleRight()->getTriangleCenter()->getTriangleLeft()) {
-			verticesFour.add(v);
+	for (auto t : trianglesAll) {
+		if (t->isUpwards()) {
+			auto v = t->getVertexLeft();
+			if (
+					v->getTriangleLeft() == v->getTriangleRight()->getTriangleLeft() 
+					&& v->getTriangleLeft()->getTriangleCenter() == v->getTriangleRight()->getTriangleCenter()->getTriangleLeft()
+			   ) {
+				verticesFour.add(v);
+			}
 		}
-	}
 
-	for (auto t : triangles) { //add flippable triangles
 		if (t->type != t->getTriangleRight()->type) {
 			trianglesFlip.add(t);
 		}
 	}
 
+	check();
+
 	imported = true;
 }
 
 std::string Universe::getGeometryFilename(int targetVolume, int slices, int seed) {
+	std::string expectedFn = "geom/geometry-V" + std::to_string(targetVolume) + "-sl" + std::to_string(slices) + "-s" + std::to_string(seed);
 
-	std::string expectedFn = "geom/geometry-V"+std::to_string(targetVolume)+"-sl"+std::to_string(slices)+"-s"+std::to_string(seed);
-	if (sphere) expectedFn += "-sphere";
 	expectedFn += ".txt";
 	std::cout << "Searching for " << expectedFn << std::endl;
 
