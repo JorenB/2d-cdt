@@ -389,9 +389,6 @@ void Universe::updateTriangleData() {
 }
 
 void Universe::exportGeometry(std::string geometryFilename) {
-	updateTriangleData();
-	updateVertexData();
-
 	std::unordered_map<int, int> vertexMap;
 	std::vector<Vertex::Label> intVMap;
 	intVMap.resize(vertices.size());
@@ -531,15 +528,11 @@ void Universe::importGeometry(std::string geometryFilename) {
 }
 
 std::string Universe::getGeometryFilename(int targetVolume, int slices, int seed) {
-	std::string expectedFn = "geom/geometry-V" + std::to_string(targetVolume) + "-sl" + std::to_string(slices) + "-s" + std::to_string(seed);
+	std::string expectedFn = "geom/geometry-v" + std::to_string(targetVolume) + "-t" + std::to_string(slices) + "-s" + std::to_string(seed);
 
-	expectedFn += ".txt";
-	std::cout << "Searching for " << expectedFn << std::endl;
+    if (sphere) expectedFn += "-sphere";
 
-	std::ifstream f(expectedFn.c_str());
-	if (f.good()) {
-		return expectedFn;
-	}
+	expectedFn += ".dat";
 
-	return "";
+	return expectedFn;
 }

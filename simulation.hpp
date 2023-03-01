@@ -9,8 +9,9 @@
 class Simulation {
 public:
 	static double lambda;
+    static int seed;
 
-	static void start(int sweeps, double lambda_, int targetVolume_, int seed = 0);
+	static void start(int sweeps, double lambda_, int targetVolume_, int seed_ = 0);
 
 	static void addObservable(Observable& o) {
 		observables.push_back(&o);

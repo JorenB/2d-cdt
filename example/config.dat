@@ -1,8 +1,8 @@
 lambda			0.693147
-targetVolume	16000
+targetVolume	2000
 slices			40
 sphere			false
 seed			123
-fileID			example-16000-123
+fileID			example-2000-123
 measurements	10
-importGeom		true
+importGeom		false

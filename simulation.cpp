@@ -5,12 +5,13 @@
 std::default_random_engine Simulation::rng(0);  // TODO(JorenB): seed properly
 int Simulation::targetVolume = 0;
 double Simulation::lambda = 0;
+int Simulation::seed = 0;
 double Simulation::epsilon = 0.02;
 std::vector<Observable*> Simulation::observables;
 
 std::array<int, 2> Simulation::moveFreqs = {1, 1};
 
-void Simulation::start(int measurements, double lambda_, int targetVolume_, int seed) {
+void Simulation::start(int measurements, double lambda_, int targetVolume_, int seed_) {
 	targetVolume = targetVolume_;
 
 	lambda = lambda_;
@@ -19,21 +20,20 @@ void Simulation::start(int measurements, double lambda_, int targetVolume_, int 
 		o->clear();
 	}
 
+    seed = seed_;
 	rng.seed(seed);
 	// tune();
 
 	if (!Universe::imported) {
 		grow();
 		thermalize();
-		std::string expFn = "geom/geometry-V"+std::to_string(targetVolume)+"-sl"+std::to_string(Universe::nSlices)+"-s"+std::to_string(seed);
-		if (Universe::sphere) expFn += "-sphere";
-		expFn += ".txt";
-		Universe::exportGeometry(expFn);
+        Universe::exportGeometry(Universe::getGeometryFilename(targetVolume, Universe::nSlices, seed));
 	}
 
 	for (int i = 0; i < measurements; i++) {
 		sweep();
 		printf("m %d\n", i);
+        if (i % 10 == 0) Universe::exportGeometry(Universe::getGeometryFilename(targetVolume, Universe::nSlices, seed));
 		fflush(stdout);
 	}
 }
@@ -70,7 +70,7 @@ void Simulation::sweep() {
 	std::uniform_int_distribution<> uniform_int(0, 3);
 
 	std::array<int, 4> moves = {0, 0, 0, 0};
-	for (int i = 0; i < 500 * targetVolume; i++) {
+	for (int i = 0; i < 100 * targetVolume; i++) {
 		moves[attemptMove()]++;
 	}
 
