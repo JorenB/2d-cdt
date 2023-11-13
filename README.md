@@ -37,3 +37,23 @@ All parameters are required.
 Several standard observables are supplied in the directory `observables`. These can be added to the simulation in `main.cpp`. In the standard `main.cpp`, it is shown how to do this for the volume profile and Hausdorff dimension observables.
 
 Custom observables can be created based on the standard observables supplied here. The class `Universe` offers access to all `Vertex`, `Link`, and `Triangle` objects, and lists containing the neighbors of `Vertex` and `Triangle` objects. Furthermore, the class `Observable` provides methods for constructing metric spheres (circles) on both the direct and dual lattices, and methods for computing the (dual) distance between arbitrary `Vertex` and `Triangle` objects.
+
+## Citation
+If you use this codebase or expand upon it, please consider citing
+
+```bibtex
+@misc{brunekreef2023simulating,
+  title = {Simulating {{CDT}} quantum gravity},
+  author = {Brunekreef, Joren and G{\"o}rlich, Andrzej and Loll, Renate},
+  year = {2023},
+  month = oct,
+  number = {arXiv:2310.16744},
+  eprint = {2310.16744},
+  primaryclass = {gr-qc, physics:hep-lat, physics:hep-th},
+  publisher = {{arXiv}},
+  doi = {10.48550/arXiv.2310.16744},
+  urldate = {2023-11-13},
+  archiveprefix = {arxiv},
+  keywords = {General Relativity and Quantum Cosmology,High Energy Physics - Lattice,High Energy Physics - Theory}
+}
+```
