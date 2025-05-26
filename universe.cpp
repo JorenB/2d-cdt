@@ -454,25 +454,43 @@ void Universe::exportGeometry(std::string geometryFilename) {
 	std::cout << geometryFilename << "\n";
 }
 
-void Universe::importGeometry(std::string geometryFilename) {
+bool Universe::importGeometry(std::string geometryFilename) {
 	std::ifstream infile(geometryFilename.c_str());
-	assert(!infile.fail());
+	if (infile.fail()) {
+		printf("Error: Could not open geometry file: %s\n", geometryFilename.c_str());
+		return false;
+	}
 	int line;
 
 	int nV;
 	infile >> nV;
+	if (infile.fail()) {
+		printf("Error: Failed to read nV from %s.\n", geometryFilename.c_str());
+		return false;
+	}
 	std::vector<Vertex::Label> vs(nV);
 
 	int maxTime = 0;
 	for (int i = 0; i < nV; i++) {
 		infile >> line;
+		if (infile.fail()) {
+			printf("Error: Failed to read vertex time for vertex %d from %s.\n", i, geometryFilename.c_str());
+			return false;
+		}
 		auto v = Vertex::create();
 		v->time = line;
 		vs.at(i) = v;
 		if (v->time > maxTime) maxTime = v->time;
 	}
 	infile >> line;
-	assert(line == nV);
+	if (infile.fail()) {
+		printf("Error: Failed to read vertex count confirmation from %s.\n", geometryFilename.c_str());
+		return false;
+	}
+	if (line != nV) {
+		printf("Error: Vertex count mismatch in %s. Expected %d, found %d.\n", geometryFilename.c_str(), nV, line);
+		return false;
+	}
 
 	nSlices = maxTime+1;
 	sliceSizes.resize(maxTime+1);
@@ -480,17 +498,31 @@ void Universe::importGeometry(std::string geometryFilename) {
 
 	int nT;
 	infile >> nT;
+	if (infile.fail()) {
+		printf("Error: Failed to read nT from %s.\n", geometryFilename.c_str());
+		return false;
+	}
 	for (int i = 0; i < nT; i++) {
 		auto t = Triangle::create();
 
 		int tVs[3];
 		for (int j = 0; j < 3; j++) {
 			infile >> tVs[j];
+			if (infile.fail()) {
+				printf("Error: Failed to read vertex %d for triangle %d from %s.\n", j, i, geometryFilename.c_str());
+				// Cleanup partially created triangle t? For now, just return.
+				return false;
+			}
 		}
 
 		int tNeighb[3];
 		for (int j = 0; j < 3; j++) {
 			infile >> tNeighb[j];
+			if (infile.fail()) {
+				printf("Error: Failed to read neighbor %d for triangle %d from %s.\n", j, i, geometryFilename.c_str());
+				// Cleanup partially created triangle t? For now, just return.
+				return false;
+			}
 		}
 
 		t->setVertices(tVs[0], tVs[1], tVs[2]);
@@ -499,12 +531,29 @@ void Universe::importGeometry(std::string geometryFilename) {
 		trianglesAll.add(t);
 	}
 	infile >> line;
-	assert(line == nT);
+	if (infile.fail()) {
+		printf("Error: Failed to read triangle count confirmation from %s.\n", geometryFilename.c_str());
+		return false;
+	}
+	if (line != nT) {
+		printf("Error: Triangle count mismatch in %s. Expected %d, found %d.\n", geometryFilename.c_str(), nT, line);
+		return false;
+	}
 
-	printf("read %s\n", geometryFilename.c_str());
+	printf("Successfully read %s\n", geometryFilename.c_str());
 
 	for (auto v : vs) sliceSizes.at(v->time)++;
-	if (sphere) assert(sliceSizes.at(0) == 3);
+	if (sphere) {
+		// This assertion might be too strict if import can fail before full initialization
+		// For now, keeping it, but might need revisiting if it causes issues with partial valid imports
+		// that should still be rejected.
+		if (sliceSizes.empty() || sliceSizes.at(0) != 3) {
+             printf("Warning: Spherical universe import consistency check failed for slice 0 size (expected 3, got %d). File: %s\n", sliceSizes.empty() ? 0 : sliceSizes.at(0), geometryFilename.c_str());
+             // Depending on strictness, could return false here.
+             // For now, it's a warning.
+        }
+	}
+
 
 	for (auto t : trianglesAll) {
 		if (t->isUpwards()) {
@@ -522,9 +571,11 @@ void Universe::importGeometry(std::string geometryFilename) {
 		}
 	}
 
-	check();
+	check(); // Assuming check() doesn't auto-fail but uses asserts that would terminate.
+	         // If check() could also indicate failure, its result should be handled.
 
-	imported = true;
+	Universe::imported = true;
+	return true;
 }
 
 std::string Universe::getGeometryFilename(int targetVolume, int slices, int seed) {

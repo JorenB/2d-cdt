@@ -45,8 +45,10 @@ public:
 	static void updateTriangleData();
 
 	static void exportGeometry(std::string geometryFilename);
-	static void importGeometry(std::string geometryFilename);
+	static bool importGeometry(std::string geometryFilename); // Changed return type to bool
 	static std::string getGeometryFilename(int targetVolume, int slices, int seed);
+
+	static void seedRNG(unsigned int seed);
 
 	static std::vector<Vertex::Label> vertices;
 	static std::vector<Link::Label> links;
