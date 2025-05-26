@@ -34,6 +34,7 @@ int main(int argc, const char * argv[]) {
 	}
 
 	int seed = cfr.getInt("seed");
+	Universe::seedRNG(seed);
 	std::string fID = cfr.getString("fileID");
 	int measurements = cfr.getInt("measurements");
 	std::string impGeomString = cfr.getString("importGeom");
@@ -42,10 +43,12 @@ int main(int argc, const char * argv[]) {
 
 	if (impGeom) {
 		std::string geomFn = Universe::getGeometryFilename(targetVolume, slices, seed);
-		if (geomFn != "") {
-			Universe::importGeometry(geomFn);
-		} else {
-			printf("No suitable geometry file found. Creating new Universe...\n");
+		// Always attempt to import if impGeom is true.
+		// The importGeometry function will handle file open errors.
+		bool import_successful = Universe::importGeometry(geomFn);
+		if (!import_successful) {
+			printf("Geometry import failed for file: %s. Will attempt to create a new universe.\n", geomFn.c_str());
+			// Universe::imported will be false, so the subsequent check will handle universe creation.
 		}
 	}
 
