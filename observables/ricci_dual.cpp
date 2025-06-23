@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "ricci_dual.hpp"
 
 void RicciDual::process() {

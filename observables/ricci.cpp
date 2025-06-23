@@ -2,11 +2,19 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
 #include "ricci.hpp"
+#ifdef USE_CUDA
+#include "../cuda/bfs.cuh"
+#endif
 
 void Ricci::process() {
+#ifdef USE_CUDA
+    // prepare GPU adjacency lists once per measurement
+    cudaInitGraph(Universe::vertexNeighbors);
+#endif
     std::vector<double> epsilonDistanceList;
-	std::vector<Vertex::Label> origins;
+        std::vector<Vertex::Label> origins;
 
 	for (std::vector<int>::iterator it = epsilons.begin(); it != epsilons.end(); it++) {
 		origins.push_back(randomVertex());
@@ -31,13 +39,20 @@ void Ricci::process() {
     }
 	tmp.pop_back();
     output = tmp;
+#ifdef USE_CUDA
+    cudaFreeGraph();
+#endif
 }
 
 double Ricci::averageSphereDistance(Vertex::Label p1, int epsilon) {
     auto s1 = sphere(p1, epsilon);
-	std::uniform_int_distribution<> rv(0, s1.size()-1);
+    std::uniform_int_distribution<> rv(0, s1.size()-1);
     auto p2 = s1.at(rv(rng));
     auto s2 = sphere(p2, epsilon);
+#ifdef USE_CUDA
+    std::vector<int> distanceList;
+    cudaAverageSphereDistances(s1, s2, epsilon, distanceList);
+#else
     std::unordered_map<int, Vertex::Label> vertexMap;
 
     std::vector<int> distanceList;
@@ -52,7 +67,6 @@ double Ricci::averageSphereDistance(Vertex::Label p1, int epsilon) {
 
         done.push_back(b);
         thisDepth.push_back(b);
-
 
         for (int currentDepth = 0; currentDepth < 3 * epsilon; currentDepth++) {
             for (auto v : thisDepth) {
@@ -79,6 +93,7 @@ double Ricci::averageSphereDistance(Vertex::Label p1, int epsilon) {
             if (vertexMap.size() == 0) break;
         }
     }
+#endif
 
     int distanceSum = std::accumulate(distanceList.begin(), distanceList.end(), 0);
     double averageDistance = static_cast<double>(distanceSum)/static_cast<double>(epsilon*distanceList.size());
