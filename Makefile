@@ -9,6 +9,11 @@ CXXFLAGS	:= -std=c++14 -O3 -Wno-format
 
 MAIN	:= cdt2d.x
 SOURCES := $(wildcard *.cpp) $(wildcard observables/*.cpp)
+ifdef USE_CUDA
+SOURCES += $(wildcard cuda/*.cu)
+NVCC ?= nvcc
+CUDAFLAGS := -std=c++14 -O3
+endif
 OBJECTS := $(patsubst %.cpp,%.o,$(SOURCES))
 DEPENDS := $(patsubst %.cpp,%.d,$(SOURCES))
 
@@ -27,12 +32,21 @@ clean:
 # Linking the executable from the object files
 $(MAIN): $(OBJECTS)
 	echo $(OBJECTS)
+ifdef USE_CUDA
+	$(NVCC) $(CUDAFLAGS) $^ -o $@
+else
 	$(CXX)  $(CXXFLAGS) $^ -o $@
+endif
 
 -include $(DEPENDS)
 
 %.o: %.cpp Makefile
 	$(CXX)  $(CXXFLAGS) -MMD -MP -c $< -o $@
+
+%.o: %.cu Makefile
+ifdef USE_CUDA
+	$(NVCC) $(CUDAFLAGS) -dc $< -o $@
+endif
 
 #%.x: %.o
 #	$(CXX) $(LDFLAGS) $(LDLIBS) -o $@ $^

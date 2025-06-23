@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <algorithm>
 
 void RicciH::process() {
     std::vector<double> epsilonDistanceList;
